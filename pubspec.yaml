@@ -1,0 +1,41 @@
+name: client_v3
+version: 1.0.0+1
+publish_to: none
+description: A new Flutter project.
+environment: 
+  sdk: '>=2.16.0-80.1.beta <3.0.0'
+
+dependencies: 
+  cupertino_icons: ^1.0.2
+  get: 4.6.1
+  flutter: 
+    sdk: flutter
+  get_storage: ^2.0.3
+  numeric_keyboard: ^1.1.0
+  flutter_native_splash: ^1.2.3
+  flutter_dotenv: ^5.0.2
+  qr_code_scanner: ^0.4.0-nullsafety.0
+  device_information: ^0.0.4
+  permission_handler: ^8.3.0
+
+dev_dependencies: 
+  flutter_lints: ^1.0.0
+  flutter_test: 
+    sdk: flutter
+
+flutter: 
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - .env
+
+
+  fonts:
+    - family: Ar
+      fonts:
+        - asset: assets/fonts/ar.ttf
+    
+    - family: En
+      fonts:
+        - asset: assets/fonts/en.ttf
+
