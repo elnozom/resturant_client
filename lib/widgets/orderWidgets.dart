@@ -10,11 +10,6 @@ import 'package:client_v3/app/widgets/mainGroup.dart';
 
 class OrderWidgets {
   late OrderController orderController;
-  // OrderWidgets (OrderController orderController){
-  //   this.orderController = orderController;
-  // }
-  
-
   Widget itemWidget(BuildContext context, Item item, Function addItem) {
     Rx<bool> isActive = false.obs;
     return GestureDetector(
@@ -83,7 +78,7 @@ class OrderWidgets {
 
   Widget itemsGrid(BuildContext context, RxList<Item> items, Function addItem) {
     List<Widget> widget = [];
-    if (items.length == 0) {
+    if (items.length == 1) {
       return Center(
           child: Text("no_items".tr, style: TextStyle(color: Colors.black)));
     }
@@ -152,7 +147,7 @@ class OrderWidgets {
       var activeItem = sideBarItems[i];
       GestureDetector item = GestureDetector(
           onTap: () {
-            activeItem.action();
+            activeItem.action(context);
           },
           child: Column(children: [
             activeItem.icon,
@@ -195,8 +190,7 @@ class OrderWidgets {
     return items;
   }
 
-  Widget mainGroupsListAtBottom(BuildContext context,
-      List<GroupModel?> mainGroups, Function getSubGroups) {
+  Widget mainGroupsListAtBottom(BuildContext context,List<GroupModel?> mainGroups, Function getSubGroups) {
     return Container(
       height: MediaQuery.of(context).size.width > 960 ? 100 : 100,
       decoration: BoxDecoration(color: Colors.grey.shade300),
@@ -208,8 +202,7 @@ class OrderWidgets {
     );
   }
 
-  Future<bool> deleteConfirmDialog(
-      BuildContext context, Item item, Function deleteItem) async {
+  Future<bool> deleteConfirmDialog(BuildContext context, Item item, Function deleteItem) async {
     bool result = await Get.dialog(AlertDialog(
         title: Text(
           "confirm_delete".tr,
@@ -241,11 +234,12 @@ class OrderWidgets {
     return result;
   }
 
-  Widget itemRow(BuildContext context, Item item, RxList<Item> items,
-      Function deleteItem) {
+  Widget itemRow(BuildContext context, Item item, RxList<Item> items,  Function deleteItem) {
+        if(item.itemSerial == 0){
+          return SizedBox(height: 0,);
+        }
 
-
-        bool isMod = item.mainModSerial > 0;
+        bool isMod = item.itemPrice == 0;
     return Container(
       height: isMod ? 30 : 40,
       // alignment: Alignment.center,
@@ -259,9 +253,8 @@ class OrderWidgets {
           confirmDismiss: (dir) async {
             bool result = await deleteConfirmDialog(context, item, deleteItem);
             if (result)
-              items.removeWhere((Item i) {
-                return i.orderItemSerial == item.orderItemSerial ||
-                    i.mainModSerial == item.orderItemSerial;
+              items.removeWhere((Item orderItem) {
+                return orderItem.orderItemSerial == item.orderItemSerial || orderItem.mainModSerial == item.orderItemSerial;
               });
             return result;
           },
@@ -312,8 +305,7 @@ class OrderWidgets {
     );
   }
 
-  Widget orderItemsTableRows(
-      BuildContext context, RxList<Item> orderItems, Function delteItem) {
+  Widget orderItemsTableRows(BuildContext context, RxList<Item> orderItems, Function delteItem) {
     List<Widget> itemsRows = [];
 
     for (var i = 0; i < orderItems.length; i++) {
@@ -355,12 +347,7 @@ class OrderWidgets {
     );
   }
 
-  Scaffold orderItemsAndTotalsSide(
-      BuildContext context,
-      RxList<Item> orderItems,
-      double totalAmount,
-      Function deleteItem,
-      TableModel config) {
+  Scaffold orderItemsAndTotalsSide(BuildContext context,RxList<Item> orderItems,double totalAmount,Function deleteItem,TableModel config) {
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(

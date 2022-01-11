@@ -33,4 +33,15 @@ class Item {
     "OrderItemSerial" : orderItemSerial,
     "MainModSerial" : mainModSerial,
   };
+
+  static Item newInstance() {
+    return new Item(
+      itemSerial : 0,
+      itemPrice : 0,
+      orderItemSerial : 0,
+      mainModSerial : 0,
+      itemName : "",
+      withModifier : false,
+    );
+  }
 }

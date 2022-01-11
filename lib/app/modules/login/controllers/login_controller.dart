@@ -110,6 +110,7 @@ class LoginController extends GetxController with SingleGetTickerProviderMixin {
   Widget binCodeTab(BuildContext context) {
     newCode();
     return Container(
+      alignment: Alignment.center,
         color: Colors.white,
         padding: EdgeInsets.all(20),
         child: SingleChildScrollView(
@@ -130,7 +131,7 @@ class LoginController extends GetxController with SingleGetTickerProviderMixin {
             Obx(() => passwordMode.value
                 ? widgets.buildPasswordForm(context, login, newCode)
                 : widgets.buildEmpCodeForm(context, empGetByCode)),
-            TextButton(
+            ElevatedButton(
                 onPressed: () => toggleTabs(0), child: Text('login_by_qr'.tr , style: TextStyle(fontSize: 22)))
           ],
         )));

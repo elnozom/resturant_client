@@ -83,7 +83,7 @@ class LoginWidgets {
                 onPressed: () {
                   toggleTabs(1);
                 },
-                child: Text('login_by_code', style: TextStyle(fontSize: 18))),
+                child: Text('login_by_code', style: TextStyle(fontSize: 22))),
         
         ],
       ),

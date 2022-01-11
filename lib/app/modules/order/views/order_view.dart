@@ -149,10 +149,10 @@ class OrderView extends GetView<OrderController> {
                               color: Colors.grey.shade100,
                               child: Obx(() {
                                 if(controller.orderItemsLoading.value) return LoadingWidget();
-                                if(controller.orderItems == null || controller.orderItems!.value.length == 0 ) return Center(child: Text("no_items".tr));
+                                if(controller.orderItems == null || controller.orderItems.value.length == 1 ) return Center(child: Text("no_items".tr));
                                 return controller.widgets.orderItemsAndTotalsSide(
                                       context,
-                                      controller.orderItems!,
+                                      controller.orderItems,
                                       controller.totalAmount.value,
                                       controller.deletItem,
                                       controller.config);

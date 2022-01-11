@@ -29,7 +29,7 @@ class OrderController extends GetxController with GetSingleTickerProviderStateMi
   Rx<double> totalAmount = 0.0.obs;
   RxList<SubGroupModel>? subGroups;
   RxList<Item>? items;
-  RxList<Item>? orderItems;
+  RxList<Item> orderItems =[Item.newInstance()].obs;
   Rx<int> currentModifiersindex = 1.obs;
   int? modifiersScreens;
   TableModel config = Get.arguments;
@@ -46,7 +46,7 @@ class OrderController extends GetxController with GetSingleTickerProviderStateMi
   Rx<bool> tableLoading = true.obs;
   Rx<int> activeGroup = 0.obs;
   TableGroup? selectedTableGroup ;
-  TableModel? selectedTable ;
+  Rx<TableModel?>? selectedTable;
 late List<SideBarItem> sideBarItems = [
     SideBarItem(
         title: "split_cheq",
@@ -59,7 +59,7 @@ late List<SideBarItem> sideBarItems = [
     SideBarItem(
         title: 'change table',
         icon: Icon(Icons.table_chart, color: Colors.black),
-        action: () => {changeTable()}),
+        action: changeTable),
     SideBarItem(
         title: 'change customer',
         icon: Icon(Icons.person_outline, color: Colors.black),
@@ -78,6 +78,7 @@ late List<SideBarItem> sideBarItems = [
         action: () => {print("hi")}),
   ];
   void closeTable() {
+    print(config.serial);
     TableProvider().tablesCloseOrder(config.serial);
     // Get.toNamed('login' , arguments: config);
   }
@@ -89,24 +90,26 @@ late List<SideBarItem> sideBarItems = [
     });
   }
 
-  Future getTablesGroups() async{
-    print("hi");
+  Future getTablesGroups(context) async{
     groupLoading.value = true;
     tableProvider.groupTablesList().then((value) {
       tableGroups = value;
+      selectedTableGroup = tableGroups.first;
       getTables(tableGroups.first.groupTableNo);
       groupLoading.value = false;
+      changeTable(context);
     });
   }
   void getTables(int no) {
     tableLoading.value = true;
     activeGroup.value = no;
+    selectedTable = null;
     tableProvider.tablesListByGroupNo(no).then((value) {
+      print(value);
       tableLoading.value = false;
       // success call back
       tables.value = value;
       tableLoading.value = false;
-    print(tables.value);
     });
   }
 
@@ -125,8 +128,19 @@ late List<SideBarItem> sideBarItems = [
     }
     return list;
   }
-  void changeTable() async{
-    if(tableGroups[0].groupTableNo == 0) await getTablesGroups();
+  void changeTableSubmit(context) {
+    orderProvider.changeTable(config.serial , selectedTable!.value!.serial).then((value){
+      config.serial = selectedTable!.value!.serial;
+      Navigator.pop(context);
+    });
+  }
+  void changeTable(context) async{
+    if(tableGroups[0].groupTableNo == 0){
+      await getTablesGroups(context);
+      return ; 
+    }
+
+
     Get.bottomSheet(Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -139,16 +153,19 @@ late List<SideBarItem> sideBarItems = [
                     "choose_table".tr,
                     style: TextStyle(color: Colors.black),
                   )),
-                  DropdownButton<TableGroup>(items: groupsDropDown(), onChanged: (TableGroup? group){
-                    print(group);
+                   Obx(() => 
+                    tableLoading.value ?  LoadingWidget() : DropdownButton<TableGroup>(items: groupsDropDown(), onChanged: (TableGroup? group){
                     getTables(group!.groupTableNo);
                     selectedTableGroup = group;
-                  } , hint: Text("choose_table_group".tr),value: selectedTableGroup),
+                  } , hint: Text("choose_table_group".tr),value: selectedTableGroup)),
                   Obx(() => 
                     tableLoading.value ? LoadingWidget() : DropdownButton<TableModel>(items: tablesDropDown(), onChanged: (TableModel? table){
-                    selectedTable = table;
-                  } , hint: Text("choose_table".tr),value: selectedTable)
-                  )
+                    selectedTable = table.obs;
+                  } , hint: Text("choose_table".tr),value: selectedTable == null ? null : selectedTable!.value)
+                  ),
+                  ElevatedButton(onPressed: (){
+                    changeTableSubmit(context);
+                  }, child: Text("change".tr))
                   
 
                   // ElevatedButton(
@@ -165,8 +182,15 @@ late List<SideBarItem> sideBarItems = [
                 ],),
     ));
   }
-
+  void debugPrint(){
+    for (var i = 0; i < orderItems.value.length; i++) {
+      var active = orderItems.value[i];
+      print(active.itemName);
+      print(active.mainModSerial);
+    }
+  }
   void createItem(Item item) {
+    
     Map i = {
       "HeadSerial": config.headSerial,
       "ItemSerial": item.itemSerial,
@@ -178,16 +202,16 @@ late List<SideBarItem> sideBarItems = [
       item.orderItemSerial = value;
       item.qnt!.value++;
       totalAmount.value += item.itemPrice;
-      orderItems == null ?  orderItems = [item].obs :  orderItems!.value.add(item);
-      print(value);
+      orderItems.value.add(item);
+      debugPrint();
     });
   }
 
   void deletItem(Item item) {
     orderProvider.deleteOrderItem(item.orderItemSerial).then((value) {
-      orderItems!.value.removeWhere((Item i) {
-        return i.orderItemSerial == item.orderItemSerial || i.mainModSerial == item.orderItemSerial;
-      });
+      // orderItems.value.removeWhere((Item i) {
+      //   return i.orderItemSerial == item.orderItemSerial || i.mainModSerial == item.orderItemSerial;
+      // });
       item.qnt!.value--;
     });
   }
@@ -240,11 +264,10 @@ late List<SideBarItem> sideBarItems = [
   }
 
   void addItem(BuildContext context, Item item) async {
-    // return ;
-
     if (createOrderLoading == true) return;
     if (config.headSerial == 0) {
-      await createOrder(item);
+      await createOrder(context , item);
+      return ; 
     }
     if (item.withModifier) {
       createItem(item);
@@ -254,7 +277,7 @@ late List<SideBarItem> sideBarItems = [
     createItem(item);
   }
 
-  Future createOrder(Item item) async {
+  Future createOrder(BuildContext context , Item item) async {
     createOrderLoading = true;
     String imei = await DeviceInformation.deviceIMEINumber;
     Order order = new Order(
@@ -268,21 +291,20 @@ late List<SideBarItem> sideBarItems = [
       config.docNo = value.docNo;
       config.openDateTime = "${now.hour} : ${now.minute}";
       createOrderLoading = false;
-      // createItem(item);
+      addItem(context , item);
       
     });
   }
 
 
   void openItems(context) {
-    print(orderItemsLoading.value);
-    print(orderItems);
+
     Get.bottomSheet(
         Obx(() { 
           if (orderItemsLoading.value ) return LoadingWidget();
-          if (orderItems == null || orderItems!.value.length ==  0 ) return Container( height : 100, child: Center(child: Text("no_items".tr , style: TextStyle(color: Colors.black),) ));
+          if (orderItems == null || orderItems.value.length ==  0 ) return Container( height : 100, child: Center(child: Text("no_items".tr , style: TextStyle(color: Colors.black),) ));
           return widgets.orderItemsAndTotalsSide(
-                context, orderItems!, totalAmount.value, deletItem , config);}),
+                context, orderItems, totalAmount.value, deletItem , config);}),
         elevation: 20.0,
         enableDrag: false,
         backgroundColor: Colors.white,
@@ -294,7 +316,10 @@ late List<SideBarItem> sideBarItems = [
   }
 
   void createItemModifers(BuildContext context, int orderItemSerial) {
+    // remove the first comma from modifiers serials string 
+    // ",1,2,3" => "1,2,3"
     String sreials = modifersSerials.substring(1);
+    print("done");
     Map insertItemModifersReq = {
       "ItemsSerials": sreials,
       "HeadSerial": config.headSerial,
@@ -315,10 +340,11 @@ late List<SideBarItem> sideBarItems = [
       var item = items[i];
       widget.add(GestureDetector(
         onTap: () {
+          modifersSerials += ",${item.itemSerial}";
+          item.mainModSerial = orderItemSerial;
+          print(item.mainModSerial);
+          orderItems.value.add(item);
           if (currentModifiersindex.value < modifiersScreens!) {
-            modifersSerials += ",${item.itemSerial}";
-            item.mainModSerial = orderItemSerial;
-            orderItems!.value.add(item);
             currentModifiersindex.value++;
             return;
           }

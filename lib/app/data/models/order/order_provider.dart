@@ -45,6 +45,20 @@ class OrderProvider extends GetConnect {
     return response.body;
   }
 
+
+
+  Future<bool> changeTable(int oldSerial , int newSerial) async{
+    Map req = {
+      "NewSerial" :newSerial,
+      "OldSerial" : oldSerial
+    };
+    final response = await put('${dotenv.env['API_URL']}order/changetable' , req);
+    if (response.status.hasError) {
+      return Future.error(response.statusText.toString());
+    }
+
+    return response.body;
+  }
   Future<List<Item>> listOrderItems(int headSerial) async {
     final response = await get('${dotenv.env['API_URL']}order/${headSerial}');
     if (response.status.hasError) {

@@ -8,8 +8,7 @@ import 'package:permission_handler/permission_handler.dart';
 class AuthProvider extends GetConnect {
   // final _globals = Globals;
   @override
-  void onInit() async{
-   
+  void onInit(){
     httpClient.baseUrl = dotenv.env['API_URL'];
   }
   Future<Emp?> _handleEmpResponse(response) async {
