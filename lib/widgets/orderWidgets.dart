@@ -1,139 +1,199 @@
+import 'package:client_v3/app/data/models/group/subgroup_model.dart';
 import 'package:client_v3/app/modules/order/controllers/order_controller.dart';
+import 'package:client_v3/app/modules/order/helpers/apply_discount.dart';
+import 'package:client_v3/app/modules/order/helpers/change_customer.dart';
+import 'package:client_v3/app/modules/order/helpers/change_guests.dart';
+import 'package:client_v3/app/modules/order/helpers/change_table.dart';
+import 'package:client_v3/app/modules/order/helpers/change_waiter.dart';
+import 'package:client_v3/app/modules/order/helpers/split.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/state_manager.dart';
 import 'package:client_v3/app/data/models/group/group_model.dart';
 import 'package:client_v3/app/data/models/item/item_model.dart';
 import 'package:client_v3/app/data/models/side_bar_item_model.dart';
-import 'package:client_v3/app/data/models/table/table_model.dart';
 import 'package:client_v3/app/widgets/mainGroup.dart';
+import 'package:client_v3/app/modules/order/helpers/transfer.dart';
 
-class OrderWidgets {
-  late OrderController orderController;
-  Widget itemWidget(BuildContext context, Item item, Function addItem) {
-    Rx<bool> isActive = false.obs;
-    return GestureDetector(
-        onTap: () {
-          isActive.value = true;
-          addItem(context, item);
-        },
-        child: SizedBox(
-          child: Obx(() => AnimatedContainer(
-                duration: Duration(microseconds: 300),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5),
-                  color: isActive.value
-                      ? Colors.green.shade900
-                      : Theme.of(context).primaryColor,
-                  boxShadow: [
-                    if (isActive.value)
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.5),
-                        spreadRadius: 5,
-                        blurRadius: 7,
-                        offset: Offset(0, 3), // changes position of shadow
-                      ),
-                  ],
-                ),
-                child: AnimatedContainer(
-                  duration: Duration(milliseconds: 500),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                          padding: EdgeInsets.fromLTRB(5, 5, 10, 0),
-                          width: double.infinity,
-                          child: Text(
-                            item.itemName,
-                            textAlign: TextAlign.start,
-                            maxLines: 2,
-                            style: TextStyle(color: Colors.white, fontSize: 12),
-                          )),
-                      Container(
-                          padding: EdgeInsets.all(5),
-                          width: double.infinity,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "${item.itemPrice.toString()}EGP",
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              Obx(() => Text(
-                                    item.qnt!.value.toString(),
-                                    style: TextStyle(color: Colors.white),
-                                  ))
-                              // Obx(()=> item.qnt > 0 ? Text(
-                              //   item.qnt.toString(),
-                              //   style: TextStyle(color: Colors.white),
-                              // ) : Text(""))
-                            ],
-                          )),
-                    ],
-                  ),
-                ),
-              )),
-        ));
+class OrderWidgets extends GetView<OrderController> {
+  Widget build(BuildContext context) {
+    return Text("asd");
   }
 
-  Widget itemsGrid(BuildContext context, RxList<Item> items, Function addItem) {
-    List<Widget> widget = [];
-    if (items.length == 1) {
+  // final OrderController controller = Get.put(OrderController());
+  //items section
+  late Transfer transferClass = Get.put(Transfer(controller.config));
+  late ChangeTable chgTableClass = Get.put(ChangeTable(controller.config));
+  late ChangeCustomer chgCustomerleClass =
+      Get.put(ChangeCustomer(controller.config));
+  late ChangeWaiter chgWaiterClass = Get.put(ChangeWaiter(controller.config));
+  late ChangeGuestsNo chgGuestsNo = Get.put(ChangeGuestsNo(controller.config));
+  late ApplyDiscount applyDisc = Get.put(ApplyDiscount(controller.config));
+  late Split split = Get.put(Split(controller.config));
+  late List<SideBarItem> sideBarItems = [
+    SideBarItem(
+        title: "split_cheq".tr,
+        icon: Icon(Icons.call_split, color: Colors.black),
+        action: split),
+    SideBarItem(
+        title: 'transfer'.tr,
+        icon: Icon(Icons.transform, color: Colors.black),
+        action: transferClass),
+    SideBarItem(
+        title: 'change_table'.tr,
+        icon: Icon(Icons.table_chart, color: Colors.black),
+        action: chgTableClass),
+    SideBarItem(
+        title: 'change_customer'.tr,
+        icon: Icon(Icons.person_outline, color: Colors.black),
+        action: chgCustomerleClass),
+    SideBarItem(
+        title: 'change_waiter'.tr,
+        icon: Icon(Icons.engineering, color: Colors.black),
+        action: chgWaiterClass),
+    SideBarItem(
+        title: 'no_of_guests'.tr,
+        icon: Icon(Icons.pin, color: Colors.black),
+        action: chgGuestsNo),
+    SideBarItem(
+        title: 'apply_Discount'.tr,
+        icon: Icon(Icons.money_off, color: Colors.black),
+        action: applyDisc),
+  ];
+
+  Widget itemWidget(BuildContext context, Item item) {
+    Rx<bool> isActive = false.obs;
+    isActive.value = item.qnt > 0;
+    item.qntReactive = item.qnt.obs;
+    return GestureDetector(
+      onTap: () {
+        isActive.value = true;
+        controller.addItem(context, item);
+      },
+      child: SizedBox(
+          child: Obx(
+        () => AnimatedContainer(
+          duration: Duration(microseconds: 300),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(5),
+            color: isActive.value
+                ? Colors.green.shade900
+                : Theme.of(context).primaryColor,
+            boxShadow: [
+              if (isActive.value)
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 5,
+                  blurRadius: 7,
+                  offset: Offset(0, 3), // changes position of shadow
+                ),
+            ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                  padding: EdgeInsets.fromLTRB(5, 5, 10, 0),
+                  width: double.infinity,
+                  child: Text(
+                    item.itemName,
+                    textAlign: TextAlign.start,
+                    maxLines: 2,
+                    style: TextStyle(color: Colors.white, fontSize: 12),
+                  )),
+              Container(
+                  padding: EdgeInsets.all(5),
+                  width: double.infinity,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "${item.itemPrice.toStringAsFixed(2)}EGP",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      Obx(() => Text(
+                            item.qntReactive!.value.toString(),
+                            style: TextStyle(color: Colors.white),
+                          ))
+                      // Obx(()=> item.qnt > 0 ? Text(
+                      //   item.qnt.toString(),
+                      //   style: TextStyle(color: Colors.white),
+                      // ) : Text(""))
+                    ],
+                  )),
+            ],
+          ),
+        ),
+      )),
+    );
+  }
+
+  Widget itemsGrid(BuildContext context) {
+    bool isMobile = MediaQuery.of(context).size.width > 960;
+    List<Widget> widgets = [];
+    var items = controller.items!;
+    //check that items is empty
+    // length will be one because tthe empty item in the first of array used to avoid bug
+    if (items.length == 0) {
       return Center(
           child: Text("no_items".tr, style: TextStyle(color: Colors.black)));
     }
-    for (var i = 0; i < items.value.length; i++) {
-      var item = items.value[i];
-      widget.add(
-        itemWidget(context, item, addItem),
+    for (var item in items.value) {
+      widgets.add(
+        itemWidget(context, item),
       );
     }
     return Padding(
         padding: const EdgeInsets.all(10.0),
         child: GridView.count(
-            childAspectRatio: MediaQuery.of(context).size.width > 960 ? .8 : 1,
+            childAspectRatio: isMobile ? .8 : 1,
             padding: EdgeInsets.all(10),
-            crossAxisCount: MediaQuery.of(context).size.width > 960 ? 4 : 2,
+            crossAxisCount: isMobile ? 4 : 2,
             crossAxisSpacing: 10.0,
             mainAxisSpacing: 10.0,
-            children: widget));
+            children: widgets));
   }
 
-  Widget subGroupsList(context, subGroups, Function listItems) {
-    List<Widget> groups = [];
-    for (var i = 0; i < subGroups.length; i++) {
-      var active = subGroups[i];
-      Widget g = GestureDetector(
-          onTap: () {
-            listItems(active.groupCode);
-          },
-          child: SizedBox(
-            child: Container(
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5),
-                  color: Color(0xff5b88bc)),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                      padding: EdgeInsets.fromLTRB(5, 5, 10, 0),
-                      width: double.infinity,
-                      child: Text(
-                        active.groupName,
-                        textAlign: TextAlign.start,
-                        maxLines: 2,
-                        style: TextStyle(color: Colors.white, fontSize: 12),
-                      ))
-                ],
-              ),
+  //subgroups section
+  Widget subGroupWidget(SubGroupModel item) {
+    return GestureDetector(
+        onTap: () {
+          controller.activeSubGroup = item.groupCode;
+          controller.listItems();
+        },
+        child: SizedBox(
+          child: Container(
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5),
+                color: Color(0xff5b88bc)),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                    padding: EdgeInsets.fromLTRB(5, 5, 10, 0),
+                    width: double.infinity,
+                    child: Text(
+                      item.groupName,
+                      textAlign: TextAlign.start,
+                      maxLines: 2,
+                      style: TextStyle(color: Colors.white, fontSize: 12),
+                    ))
+              ],
             ),
-          ));
-      groups.add(g);
+          ),
+        ));
+  }
+
+  Widget subGroupsList(context) {
+    List<Widget> groups = [];
+    bool isMobile = MediaQuery.of(context).size.width > 960;
+    for (var item in controller.subGroups!.value) {
+      groups.add(subGroupWidget(item));
     }
     return Padding(
         padding: const EdgeInsets.all(10.0),
         child: GridView.count(
-            childAspectRatio: MediaQuery.of(context).size.width > 960 ? .8 : 1,
+            childAspectRatio: isMobile ? .8 : 1,
             padding: EdgeInsets.all(10),
             crossAxisCount: 1,
             crossAxisSpacing: 10.0,
@@ -141,68 +201,75 @@ class OrderWidgets {
             children: groups));
   }
 
-  List<Widget> leftSideBarItems(context , sideBarItems) {
+  // left sidebar secttion
+  Widget leftSideBarItemWidget(BuildContext context, SideBarItem item) {
+    return GestureDetector(
+        onTap: () {
+          if (item.title == "split_cheq".tr) split.listItems();
+          controller.openUpdateModal(item.action, context);
+        },
+        child: Column(children: [
+          item.icon,
+          Text(item.title,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyText1)
+        ]));
+  }
+
+  List<Widget> leftSideBarItems(context) {
     List<Widget> items = [];
-    for (var i = 0; i < sideBarItems.length; i++) {
-      var activeItem = sideBarItems[i];
-      GestureDetector item = GestureDetector(
-          onTap: () {
-            activeItem.action(context);
-          },
-          child: Column(children: [
-            activeItem.icon,
-            Text(activeItem.title,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyText1)
-          ]));
-      items.add(item);
+    for (var item in sideBarItems) {
+      items.add(leftSideBarItemWidget(context, item));
       items.add(SizedBox(height: 30));
     }
     return items;
   }
 
-  Container leftSideBar(context , sideBarItems) {
+  Container leftSideBar(BuildContext context) {
     return Container(
       child: Container(
           child: Container(
         padding: EdgeInsets.all(10),
         child: SingleChildScrollView(
           child: Column(
-            children: leftSideBarItems(context , sideBarItems),
+            children: leftSideBarItems(context),
           ),
         ),
       )),
     );
   }
 
-  List<Widget> mainGroupsItems(mainGroups, Function getSubGroups) {
-    List<Widget> items = [];
-    for (var i = 0; i < mainGroups.length; i++) {
-      var g = mainGroups[i]!;
-      Widget gr = GestureDetector(
-          onTap: () {
-            getSubGroups(g.groupCode);
-          },
-          child: MainGroup(title: g.groupName, icon: g.icon));
-      items.add(gr);
-    }
+  // maingroups section
+  Widget mainGroupWidget(GroupModel group) {
+    return GestureDetector(
+        onTap: () {
+          controller.listSubGroups(group.groupCode);
+        },
+        child: MainGroup(title: group.groupName, icon: group.icon));
+  }
 
+  List<Widget> mainGroupsItems() {
+    List<Widget> items = [];
+    for (var group in controller.mainGroups) {
+      items.add(mainGroupWidget(group!));
+    }
     return items;
   }
 
-  Widget mainGroupsListAtBottom(BuildContext context,List<GroupModel?> mainGroups, Function getSubGroups) {
+  Widget mainGroupsListAtBottom() {
     return Container(
-      height: MediaQuery.of(context).size.width > 960 ? 100 : 100,
+      height: 100,
       decoration: BoxDecoration(color: Colors.grey.shade300),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        child: Row(children: mainGroupsItems(mainGroups, getSubGroups)),
+        child: Row(children: mainGroupsItems()),
         padding: EdgeInsets.all(10),
       ),
     );
   }
 
-  Future<bool> deleteConfirmDialog(BuildContext context, Item item, Function deleteItem) async {
+  // delete item
+  Future<bool> deleteConfirmDialog(BuildContext context, Item item) async {
     bool result = await Get.dialog(AlertDialog(
         title: Text(
           "confirm_delete".tr,
@@ -213,19 +280,18 @@ class OrderWidgets {
           children: [
             ElevatedButton(
                 style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(Colors.red),
+                  backgroundColor:
+                      MaterialStateProperty.all(Colors.red.shade400),
                 ),
                 child: Text('cancle'.tr),
-                onPressed: () => Get.back(result: false)
-                // ** result: returns this value up the call stack **
-                ),
+                onPressed: () => Get.back(result: false)),
             SizedBox(
               width: 5,
             ),
             ElevatedButton(
               child: Text('confirm'.tr),
               onPressed: () {
-                deleteItem(item);
+                controller.deleteItem(item);
                 Get.back(result: true);
               },
             ),
@@ -234,83 +300,92 @@ class OrderWidgets {
     return result;
   }
 
-  Widget itemRow(BuildContext context, Item item, RxList<Item> items,  Function deleteItem) {
-        if(item.itemSerial == 0){
-          return SizedBox(height: 0,);
-        }
+  Widget itemRow(BuildContext context, Item item) {
+    if (item.itemSerial == 0) {
+      return SizedBox(
+        height: 0,
+      );
+    }
 
-        bool isMod = item.itemPrice == 0;
-    return Container(
-      height: isMod ? 30 : 40,
-      // alignment: Alignment.center,
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(width: 0.4, color: Colors.black),
+    bool isMod = item.itemPrice == 0;
+    return Dismissible(
+      confirmDismiss: (dir) async {
+        return await deleteConfirmDialog(context, item);
+      },
+      direction: DismissDirection.endToStart,
+      key: Key(UniqueKey().toString()),
+      background: Container(
+        decoration: BoxDecoration(
+            color: Colors.red.shade400,
+            borderRadius: BorderRadius.circular(20)),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Icon(Icons.delete, color: Colors.white),
+              Text('delete'.tr, style: TextStyle(color: Colors.white)),
+            ],
+          ),
         ),
       ),
-      child: OverflowBox(
-              child: Dismissible(
-          confirmDismiss: (dir) async {
-            bool result = await deleteConfirmDialog(context, item, deleteItem);
-            if (result)
-              items.removeWhere((Item orderItem) {
-                return orderItem.orderItemSerial == item.orderItemSerial || orderItem.mainModSerial == item.orderItemSerial;
-              });
-            return result;
-          },
-          // direction: DismissDirection.endToStart,
-          // onDismissed: (dir) {
-          //   deleteItem(item ,context);
-          // },
-          key: Key(item.orderItemSerial.toString()),
-          background: Container(
-            decoration: BoxDecoration(
-                color: Colors.red, borderRadius: BorderRadius.circular(20)),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Icon(Icons.delete, color: Colors.white),
-                  Text('delete'.tr, style: TextStyle(color: Colors.white)),
-                ],
-              ),
-            ),
+      child: Container(
+        height: isMod ? 30 : item.addItems == "" ? 40 : 55,
+        // alignment: Alignment.center,
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(width: 0.4, color: Colors.black),
           ),
-          child: Container(
-            alignment: Alignment.center,
-            color: isMod ? Colors.grey.shade400 : Colors.white,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                    child: Text(item.itemName, style: TextStyle(fontSize:isMod ? 14 : 18)),
-                    flex: 7),
-                Expanded(
-                    child: Text(item.itemPrice.toString(),
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize:isMod ? 14 : 18)),
-                    flex: 2),
-                Expanded(
-                    child: Text('1',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize:isMod ? 14 : 18)),
-                    flex: 2),
-              ],
-            ),
-          ),
+          color: isMod ? Colors.grey.shade400 : Colors.white,
+        ),
+
+        alignment: Alignment.center,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+                child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+
+                  children: [
+                    Text(item.itemName,
+                        style: TextStyle(fontSize: isMod ? 14 : 18)),
+                      if(item.addItems != "")  Text(item.addItems ,style: TextStyle(fontSize: 10 , color: Colors.grey.shade800))
+                  ],
+                ),
+                flex: 7),
+            Expanded(
+                child: Text(item.itemPrice.toStringAsFixed(2),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: isMod ? 14 : 18)),
+                flex: 2),
+            Expanded(
+                child: Text('1',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: isMod ? 14 : 18)),
+                flex: 2),
+                if(!isMod) GestureDetector(
+                   onTap: (){
+                     controller.addons.setItemSerial(context , item.orderItemSerial);
+                   },
+                                    child: Expanded(
+                child: Icon(Icons.add_circle_outline,
+                                            color: Colors.black,
+                                            size: 20),
+                flex: 1),
+                 ),
+                
+          ],
         ),
       ),
     );
   }
 
-  Widget orderItemsTableRows(BuildContext context, RxList<Item> orderItems, Function delteItem) {
+  Widget orderItemsTableRows(BuildContext context) {
     List<Widget> itemsRows = [];
-
-    for (var i = 0; i < orderItems.length; i++) {
-      var activeItem = orderItems[i];
-      itemsRows.add(itemRow(context, activeItem, orderItems, delteItem));
+    for (var item in controller.orderItems!.value) {
+      itemsRows.add(itemRow(context, item));
     }
     return Column(children: itemsRows);
   }
@@ -347,7 +422,7 @@ class OrderWidgets {
     );
   }
 
-  Scaffold orderItemsAndTotalsSide(BuildContext context,RxList<Item> orderItems,double totalAmount,Function deleteItem,TableModel config) {
+  Scaffold orderItemsAndTotalsSide(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
@@ -356,9 +431,9 @@ class OrderWidgets {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(config.docNo,
+                Text(controller.config.docNo,
                     style: Theme.of(context).textTheme.headline1),
-                Text(config.openDateTime,
+                Text(controller.config.openTime,
                     style: Theme.of(context).textTheme.headline6)
               ],
             ),
@@ -366,28 +441,90 @@ class OrderWidgets {
               height: 20,
             ),
             tableHeader(),
-            orderItemsTableRows(context, orderItems, deleteItem)
+            orderItemsTableRows(context)
           ]),
         ),
       ),
-      bottomNavigationBar: Container(
-        height: 60,
+      bottomNavigationBar: Obx(()  {
+        return Container(
+        height:controller.hasDiscount.value ? 160 :125,
         padding: EdgeInsets.all(15.0),
         decoration: BoxDecoration(),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Column(
           children: [
-            Text(
-              'total',
-              style: Theme.of(context).textTheme.headline1,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'subtotal'.tr,
+                  style: Theme.of(context).textTheme.headline1,
+                ),
+                Text(
+                  controller.totalAmount.toStringAsFixed(2),
+                  style: Theme.of(context).textTheme.headline1,
+                )
+              ],
             ),
-            Text(
-              totalAmount.toString(),
-              style: Theme.of(context).textTheme.headline1,
-            )
+             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                RichText(
+                  text: TextSpan(
+                    text: 'TAX'.tr,
+                    style: Theme.of(context).textTheme.headline1,
+                    children: <TextSpan>[
+                      TextSpan(
+                          text:
+                              '(14%)',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                ),
+                Text(
+                  (controller.totalAmount * .14).toStringAsFixed(2),
+                  style: Theme.of(context).textTheme.headline1,
+                )
+              ],
+            ),
+            if( controller.hasDiscount.value ) Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                RichText(
+                  text: TextSpan(
+                    text: 'discount'.tr,
+                    style: Theme.of(context).textTheme.headline1,
+                    children: <TextSpan>[
+                      TextSpan(
+                          text:
+                              '(${controller.config.discountPercent.toString()}%)',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                ),
+                Text(
+                  ( controller.config.discountPercent.toDouble() * controller.totalAmount.value / 100.0).toStringAsFixed(2),
+                  style: Theme.of(context).textTheme.headline1,
+                )
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'total'.tr,
+                  style: Theme.of(context).textTheme.headline1,
+                ),
+                Text(
+                  (controller.totalAmount + (controller.totalAmount * .14))
+                      .toStringAsFixed(2),
+                  style: Theme.of(context).textTheme.headline1,
+                )
+              ],
+            ),
           ],
         ),
-      ),
+      );
+      }  ) 
     );
   }
 }

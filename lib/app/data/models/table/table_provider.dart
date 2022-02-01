@@ -11,11 +11,12 @@ import 'package:client_v3/app/data/models/table/table_model.dart';
 
 class TableProvider extends GetConnect {
   void onInit() async {
-    httpClient.baseUrl = dotenv.env['API_URL'];
+    httpClient.baseUrl = "";
   }
 
-  Future<List<TableGroup>> groupTablesList() async {
-    final response = await get('${dotenv.env['API_URL']}tables/groups');
+  Future<List<TableGroup>> groupTablesList(int empCode) async {
+    String url = "${dotenv.env['API_URL']}tables/groups?EmpCode=${empCode}";
+    final response = await get(url);
     // var body = response.body != null ? jsonDecode(response.body) : [];
      if (response.status.hasError) {
       return Future.error(response.statusText.toString());
@@ -32,12 +33,14 @@ class TableProvider extends GetConnect {
 
   Future<List<TableModel>> tablesListByGroupNo(int group) async {
     final response = await get('${dotenv.env['API_URL']}tables/${group}');
+    print("response.status.hasError");
+    print(response.status.hasError);
      if (response.status.hasError) {
       return Future.error(response.statusText.toString());
     } else {
       List<TableModel> tables = [];
-      print(response.body);
       if(response.body != null) response.body.forEach((item){
+        print(item);
         TableModel table = TableModel.fromJson(item);
         tables.add(table);
       });

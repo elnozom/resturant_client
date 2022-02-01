@@ -1,3 +1,4 @@
+import 'package:client_v3/app/data/models/auth/emp_model.dart';
 import 'package:get/get.dart';
 
 import 'package:client_v3/app/data/models/table/table_group_model.dart';
@@ -15,13 +16,13 @@ class TablesController extends GetxController {
   Rx<int> activeGroup = 0.obs;
   final TablesWidgets widgets = new TablesWidgets();
   final count = 0.obs;
-  int empCode = Get.arguments[0];
+  Emp emp = Get.arguments;
 
   void chooseTable(TableModel table) {
-    provider.tablesOpenOrder(table.serial, empCode).then((value) {
-      table.waiterCode = empCode;
+    provider.tablesOpenOrder(table.serial, emp.empCode).then((value) {
+      table.waiterCode = emp.empCode;
       if (value.isOrderOpened) {
-        Get.offNamed("/order", arguments: table);
+        Get.offNamed("/order", arguments: [table , emp]);
       } else {
         Get.snackbar(
           "not_allowed".tr,
@@ -35,7 +36,7 @@ class TablesController extends GetxController {
   // list all groups
   void getGroups() {
     groupLoading.value = true;
-    provider.groupTablesList().then((value) {
+    provider.groupTablesList(emp.empCode).then((value) {
       groups = value;
       getTables(groups.first.groupTableNo);
       groupLoading.value = false;

@@ -10,6 +10,7 @@ abstract class Routes {
   static const ORDER = _Paths.ORDER;
   static const UNAUTHORIZED = _Paths.UNAUTHORIZED;
   static const NOCASHTRAY = _Paths.NOCASHTRAY;
+  static const SETTINGS = _Paths.SETTINGS;
 }
 
 abstract class _Paths {
@@ -19,4 +20,5 @@ abstract class _Paths {
   static const ORDER = '/order';
   static const UNAUTHORIZED = '/unauthorized';
   static const NOCASHTRAY = '/nocashtray';
+  static const SETTINGS = '/settings';
 }

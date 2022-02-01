@@ -8,7 +8,7 @@ class TablesView extends GetView<TablesController> {
     return Scaffold(
               appBar: AppBar(
                 backgroundColor: Colors.grey.shade100,
-                toolbarHeight: 60,
+                toolbarHeight: 90,
                  automaticallyImplyLeading: false,
                 elevation: .9,
                 title: Obx(() => controller.groupLoading.value ? LoadingWidget() : controller.widgets.tabsGroups(controller.groups , controller.getTables , controller.activeGroup) )

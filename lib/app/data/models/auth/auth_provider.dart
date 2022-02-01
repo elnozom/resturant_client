@@ -9,7 +9,7 @@ class AuthProvider extends GetConnect {
   // final _globals = Globals;
   @override
   void onInit(){
-    httpClient.baseUrl = dotenv.env['API_URL'];
+    // httpClient.baseUrl = dotenv.env['API_URL'];
   }
   Future<Emp?> _handleEmpResponse(response) async {
     if (response.status.hasError) {
@@ -27,8 +27,11 @@ class AuthProvider extends GetConnect {
   }
 
   Future<Emp?> empGetByBarCode(int code) async {
+    print("asd");
     final response = await get('${dotenv.env['API_URL']}employee/barcode/${code}');
-    return _handleEmpResponse(response);
+    // print(response.body);
+    Emp? emp = await  _handleEmpResponse(response);
+    return emp;
   }
 
 

@@ -24,7 +24,7 @@ void main() async {
           bodyText1: TextStyle(fontSize: 14.0,color: Colors.black),
         ),
       ),
-      locale: Locale('en', 'US'),
+      locale: Locale('ar', 'AE'),
       translations: LocaleString(),
       title: "Rms",
       initialRoute: AppPages.INITIAL,

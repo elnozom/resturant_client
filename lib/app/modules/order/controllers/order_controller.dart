@@ -1,5 +1,10 @@
-import 'package:client_v3/app/data/models/side_bar_item_model.dart';
-import 'package:client_v3/app/data/models/table/table_group_model.dart';
+import 'dart:async';
+
+import 'package:client_v3/app/data/models/auth/emp_model.dart';
+import 'package:client_v3/app/data/models/customer/customer_provider.dart';
+import 'package:client_v3/app/modules/order/helpers/action.dart';
+import 'package:client_v3/app/modules/printing/printing.dart';
+import 'package:client_v3/app/modules/singletons/addons.dart';
 import 'package:device_information/device_information.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -15,74 +20,45 @@ import 'package:client_v3/app/data/models/table/table_provider.dart';
 import 'package:client_v3/app/widgets/loading.dart';
 import 'package:client_v3/widgets/orderWidgets.dart';
 
-class OrderController extends GetxController with GetSingleTickerProviderStateMixin {
-  GroupProvider groupProvider = new GroupProvider();
-  ItemProvider itemProvider = new ItemProvider();
-  TableProvider tableProvider = new TableProvider();
+class OrderController extends GetxController {
+  final GroupProvider groupProvider = Get.put(GroupProvider());
+  final ItemProvider itemProvider = Get.put(ItemProvider());
+  final TableProvider tableProvider = Get.put(TableProvider());
+  final OrderWidgets widgets = Get.put(OrderWidgets());
+  final OrderProvider orderProvider = Get.put(OrderProvider());
+  final CustomerProvider customerProvider = Get.put(CustomerProvider());
+  // final Transfer transferClass = Get.put(Transfer());
+  bool reloadItems = false;
+  Rx<bool> hasDiscount = false.obs;
+ 
   List<GroupModel?> mainGroups = [];
-  int? activeMainGroup;
-  int? activeSubGroup;
+
   Rx<bool> loading = true.obs;
   Rx<bool> subGroupsLoading = true.obs;
   Rx<bool> itemsLoading = true.obs;
   Rx<bool> orderItemsLoading = true.obs;
-  Rx<double> totalAmount = 0.0.obs;
-  RxList<SubGroupModel>? subGroups;
-  RxList<Item>? items;
-  RxList<Item> orderItems =[Item.newInstance()].obs;
-  Rx<int> currentModifiersindex = 1.obs;
-  int? modifiersScreens;
-  TableModel config = Get.arguments;
-  final OrderWidgets widgets = new OrderWidgets();
-  int headSerial = 0;
-  OrderProvider orderProvider = new OrderProvider();
-  bool createOrderLoading = false;
-  AnimationController? animationController;
-  final duration = const Duration(milliseconds: 1000);
-  String modifersSerials = "";
-  List<TableGroup> tableGroups = [TableGroup.newInstance()].obs;
-  RxList<TableModel> tables = [TableModel.newInstance()].obs;
   Rx<bool> groupLoading = true.obs;
   Rx<bool> tableLoading = true.obs;
-  Rx<int> activeGroup = 0.obs;
-  TableGroup? selectedTableGroup ;
-  Rx<TableModel?>? selectedTable;
-late List<SideBarItem> sideBarItems = [
-    SideBarItem(
-        title: "split_cheq",
-        icon: Icon(Icons.call_split, color: Colors.black),
-        action: () => {print("hi")}),
-    SideBarItem(
-        title: 'transfer',
-        icon: Icon(Icons.transform, color: Colors.black),
-        action: () => {print("hi")}),
-    SideBarItem(
-        title: 'change table',
-        icon: Icon(Icons.table_chart, color: Colors.black),
-        action: changeTable),
-    SideBarItem(
-        title: 'change customer',
-        icon: Icon(Icons.person_outline, color: Colors.black),
-        action: () => {print("hi")}),
-    SideBarItem(
-        title: 'change waiter',
-        icon: Icon(Icons.engineering, color: Colors.black),
-        action: () => {print("hi")}),
-    SideBarItem(
-        title: 'apply Minimum',
-        icon: Icon(Icons.monetization_on, color: Colors.black),
-        action: () => {print("hi")}),
-    SideBarItem(
-        title: 'Apply Taxes',
-        icon: Icon(Icons.money_rounded, color: Colors.black),
-        action: () => {print("hi")}),
-  ];
-  void closeTable() {
-    print(config.serial);
-    TableProvider().tablesCloseOrder(config.serial);
-    // Get.toNamed('login' , arguments: config);
-  }
 
+  TableModel config = Get.arguments[0];
+  Emp emp = Get.arguments[1];
+
+  RxList<SubGroupModel>? subGroups;
+  RxList<Item>? items;
+  RxList<Item>? orderItems;
+  int? activeSubGroup;
+
+  Rx<double> totalAmount = 0.0.obs;
+  Rx<int> activeGroup = 0.obs;
+
+  Rx<int> currentModifiersindex = 1.obs;
+  int? modifiersScreens;
+  String modifersSerials = "";
+
+  bool createOrderLoading = false;
+  final printing = Printing.instance;
+  final addons = Addons.instance;
+  // listing items & groups
   void listMainGroups() {
     groupProvider.listMainGroups().then((value) {
       mainGroups = value;
@@ -90,107 +66,68 @@ late List<SideBarItem> sideBarItems = [
     });
   }
 
-  Future getTablesGroups(context) async{
-    groupLoading.value = true;
-    tableProvider.groupTablesList().then((value) {
-      tableGroups = value;
-      selectedTableGroup = tableGroups.first;
-      getTables(tableGroups.first.groupTableNo);
-      groupLoading.value = false;
-      changeTable(context);
+  void openUpdateModal(ActionInterface action, context) {
+    if(emp.secLevel < 2){
+      Get.snackbar("error".tr, "not_allowed".tr);
+      return ;
+    }
+    reloadItems = true;
+    Navigator.of(context).push(new MaterialPageRoute<Null>(
+        builder: (BuildContext context) {
+          return Scaffold(
+            appBar: AppBar(
+              leading: IconButton(
+                  icon: Icon(Icons.cancel_outlined),
+                  onPressed: () {
+                    action.reset(context);
+                  }),
+              title: Text(action.actionTitle),
+              centerTitle: true,
+            ),
+
+            body: Container(child: Center(child: action.generateForm(context))),
+            // floatingActionButton: ElevatedButton(onPressed: ()=> action.submit(context), child: Text("save".tr),),
+            // bottomNavigationBar: Expanded(child: ElevatedButton(onPressed: ()=> action.submit(context), child: Text("save".tr),),),
+          );
+        },
+        fullscreenDialog: true));
+  }
+
+  void listSubGroups(int group) {
+    subGroupsLoading.value = true;
+    groupProvider.listSubGroups(group as int).then((value) {
+      subGroups = value!.obs;
+      subGroupsLoading.value = false;
+      loading.value = false;
+      activeSubGroup = subGroups!.value.first.groupCode;
+      listItems();
     });
   }
-  void getTables(int no) {
-    tableLoading.value = true;
-    activeGroup.value = no;
-    selectedTable = null;
-    tableProvider.tablesListByGroupNo(no).then((value) {
-      print(value);
-      tableLoading.value = false;
-      // success call back
-      tables.value = value;
-      tableLoading.value = false;
+
+  void listItems() {
+    itemsLoading.value = true;
+    itemProvider.listItemsByGroup(activeSubGroup! , config.serial).then((value) {
+      items = value.obs;
+      itemsLoading.value = false;
+      loading.value = false;
+    }).catchError((err) {
+      print(err);
     });
   }
 
-
-  List<DropdownMenuItem<TableGroup>> groupsDropDown(){
-    List<DropdownMenuItem<TableGroup>> list = [];
-    for (var i = 0; i < tableGroups.length; i++) {
-      list.add(DropdownMenuItem<TableGroup>(child: Text(tableGroups[i].groupTableName) , value: tableGroups[i]));
-    }
-    return list;
-  }
-  List<DropdownMenuItem<TableModel>> tablesDropDown(){
-    List<DropdownMenuItem<TableModel>> list = [];
-    for (var i = 0; i < tables.length; i++) {
-      list.add(DropdownMenuItem<TableModel>(child: Text(tables[i].tableName) , value: tables[i]));
-    }
-    return list;
-  }
-  void changeTableSubmit(context) {
-    orderProvider.changeTable(config.serial , selectedTable!.value!.serial).then((value){
-      config.serial = selectedTable!.value!.serial;
-      Navigator.pop(context);
+  void listOrderItems(int headSerial) {
+    // itemsLoading.value = true;
+    orderItemsLoading.value = true;
+    orderProvider.listOrderItems(headSerial).then((value) {
+      orderItems = value.obs;
+      orderItemsLoading.value = false;
+    }).onError((error, stackTrace) {
+      Get.snackbar("error".tr, "connection_error".tr);
     });
   }
-  void changeTable(context) async{
-    if(tableGroups[0].groupTableNo == 0){
-      await getTablesGroups(context);
-      return ; 
-    }
 
-
-    Get.bottomSheet(Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(topRight :Radius.circular(20.0) , topLeft: Radius.circular(20.0))
-      ),
-      child: Column(
-                children: [
-                  Center(
-                      child: Text(
-                    "choose_table".tr,
-                    style: TextStyle(color: Colors.black),
-                  )),
-                   Obx(() => 
-                    tableLoading.value ?  LoadingWidget() : DropdownButton<TableGroup>(items: groupsDropDown(), onChanged: (TableGroup? group){
-                    getTables(group!.groupTableNo);
-                    selectedTableGroup = group;
-                  } , hint: Text("choose_table_group".tr),value: selectedTableGroup)),
-                  Obx(() => 
-                    tableLoading.value ? LoadingWidget() : DropdownButton<TableModel>(items: tablesDropDown(), onChanged: (TableModel? table){
-                    selectedTable = table.obs;
-                  } , hint: Text("choose_table".tr),value: selectedTable == null ? null : selectedTable!.value)
-                  ),
-                  ElevatedButton(onPressed: (){
-                    changeTableSubmit(context);
-                  }, child: Text("change".tr))
-                  
-
-                  // ElevatedButton(
-                  //   child: Text("done".tr),
-                  //   onPressed: () {
-                  //     createItemModifers(context, item.orderItemSerial);
-                  //   },
-                  // ),
-                  // SizedBox(
-                  //   height: 400,
-                  //   child: modifiersGrid(context,
-                  //       modifiers[currentModifiersindex.value], item.orderItemSerial),
-                  // ),
-                ],),
-    ));
-  }
-  void debugPrint(){
-    for (var i = 0; i < orderItems.value.length; i++) {
-      var active = orderItems.value[i];
-      print(active.itemName);
-      print(active.mainModSerial);
-    }
-  }
+  // creat & delete items
   void createItem(Item item) {
-    
     Map i = {
       "HeadSerial": config.headSerial,
       "ItemSerial": item.itemSerial,
@@ -200,19 +137,19 @@ late List<SideBarItem> sideBarItems = [
 
     orderProvider.createOrderItem(i).then((value) {
       item.orderItemSerial = value;
-      item.qnt!.value++;
+      item.qntReactive!.value++;
       totalAmount.value += item.itemPrice;
-      orderItems.value.add(item);
-      debugPrint();
+      orderItems == null
+          ? orderItems = [item].obs
+          : orderItems!.value.add(item);
+    
     });
   }
 
-  void deletItem(Item item) {
+  void deleteItem(Item item) {
     orderProvider.deleteOrderItem(item.orderItemSerial).then((value) {
-      // orderItems.value.removeWhere((Item i) {
-      //   return i.orderItemSerial == item.orderItemSerial || i.mainModSerial == item.orderItemSerial;
-      // });
-      item.qnt!.value--;
+      listOrderItems(config.headSerial);
+      listItems();
     });
   }
 
@@ -241,8 +178,10 @@ late List<SideBarItem> sideBarItems = [
                 ),
                 SizedBox(
                   height: 400,
-                  child: modifiersGrid(context,
-                      modifiers[currentModifiersindex.value], item.orderItemSerial),
+                  child: modifiersGrid(
+                      context,
+                      modifiers[currentModifiersindex.value],
+                      item.orderItemSerial),
                 ),
               ],
             ),
@@ -264,10 +203,14 @@ late List<SideBarItem> sideBarItems = [
   }
 
   void addItem(BuildContext context, Item item) async {
+    if(emp.secLevel > 4) {
+      Get.snackbar("error".tr, "not_allowed".tr);
+      return ;
+    }
     if (createOrderLoading == true) return;
     if (config.headSerial == 0) {
-      await createOrder(context , item);
-      return ; 
+      await createOrder(context, item);
+      return;
     }
     if (item.withModifier) {
       createItem(item);
@@ -277,7 +220,7 @@ late List<SideBarItem> sideBarItems = [
     createItem(item);
   }
 
-  Future createOrder(BuildContext context , Item item) async {
+  Future createOrder(BuildContext context, Item item) async {
     createOrderLoading = true;
     String imei = await DeviceInformation.deviceIMEINumber;
     Order order = new Order(
@@ -289,37 +232,17 @@ late List<SideBarItem> sideBarItems = [
       DateTime now = new DateTime.now();
       config.headSerial = value.headSerial;
       config.docNo = value.docNo;
-      config.openDateTime = "${now.hour} : ${now.minute}";
+      config.openTime = "${now.hour} : ${now.minute}";
+      config.openDate = "${now.year}/${now.month}/${now.day}";
       createOrderLoading = false;
-      addItem(context , item);
-      
+      addItem(context, item);
     });
   }
 
-
-  void openItems(context) {
-
-    Get.bottomSheet(
-        Obx(() { 
-          if (orderItemsLoading.value ) return LoadingWidget();
-          if (orderItems == null || orderItems.value.length ==  0 ) return Container( height : 100, child: Center(child: Text("no_items".tr , style: TextStyle(color: Colors.black),) ));
-          return widgets.orderItemsAndTotalsSide(
-                context, orderItems, totalAmount.value, deletItem , config);}),
-        elevation: 20.0,
-        enableDrag: false,
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(30.0),
-          topRight: Radius.circular(30.0),
-        )));
-  }
-
   void createItemModifers(BuildContext context, int orderItemSerial) {
-    // remove the first comma from modifiers serials string 
+    // remove the first comma from modifiers serials string
     // ",1,2,3" => "1,2,3"
     String sreials = modifersSerials.substring(1);
-    print("done");
     Map insertItemModifersReq = {
       "ItemsSerials": sreials,
       "HeadSerial": config.headSerial,
@@ -329,6 +252,30 @@ late List<SideBarItem> sideBarItems = [
       modifersSerials = "";
       Navigator.pop(context);
     });
+  }
+
+  void openItems(context) {
+    if (reloadItems) listOrderItems(config.headSerial);
+    Get.bottomSheet(Obx(() {
+      if (orderItemsLoading.value) return LoadingWidget();
+      if (orderItems == null || orderItems!.value.length == 0)
+        return Container(
+            height: 100,
+            child: Center(
+                child: Text(
+              "no_items".tr,
+              style: TextStyle(color: Colors.black),
+            )));
+      return widgets.orderItemsAndTotalsSide(context);
+    }),
+        elevation: 20.0,
+        enableDrag: false,
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(30.0),
+          topRight: Radius.circular(30.0),
+        )));
   }
 
   Widget modifiersGrid(context, items, orderItemSerial) {
@@ -342,8 +289,7 @@ late List<SideBarItem> sideBarItems = [
         onTap: () {
           modifersSerials += ",${item.itemSerial}";
           item.mainModSerial = orderItemSerial;
-          print(item.mainModSerial);
-          orderItems.value.add(item);
+          orderItems!.value.add(item);
           if (currentModifiersindex.value < modifiersScreens!) {
             currentModifiersindex.value++;
             return;
@@ -370,55 +316,27 @@ late List<SideBarItem> sideBarItems = [
         child: GridView.count(
             childAspectRatio: .8,
             padding: EdgeInsets.all(10),
-            crossAxisCount: MediaQuery.of(context).size.width < 960 ? 4 :8,
+            crossAxisCount: MediaQuery.of(context).size.width < 960 ? 4 : 8,
             crossAxisSpacing: 10.0,
             mainAxisSpacing: 10.0,
             children: widget));
   }
-
-  void listSubGroups(int group) {
-    subGroupsLoading.value = true;
-    groupProvider.listSubGroups(group as int).then((value) {
-      subGroups = value!.obs;
-      activeSubGroup = subGroups!.value.first.groupCode;
-      subGroupsLoading.value = false;
-
-      loading.value = false;
-      listItems(subGroups!.value.first.groupCode);
-    });
-  }
-  void listItems(int subGroup) {
-    itemsLoading.value = true;
-    itemProvider.listItemsByGroup(subGroup).then((value) {
-      items = value.obs;
-      itemsLoading.value = false;
-      loading.value = false;
-    });
-  }
-  void listOrderItems(int headSerial) {
-    // itemsLoading.value = true;
-    orderItemsLoading.value = true;
-    orderProvider.listOrderItems(headSerial).then((value) {
-      orderItems = value.obs;
-      orderItemsLoading.value = false;
-    }).onError((error, stackTrace){
-      print(error);
-      Get.snackbar("error".tr, "connection_error".tr);
-    });
+  
+  void printReceipt() {
+    printing.setHeadSerial(config.headSerial);
   }
 
   @override
   void onInit() {
     super.onInit();
-    animationController = AnimationController(duration: duration, vsync: this);
     listMainGroups();
   }
 
   @override
   void onReady() {
     super.onReady();
-
-    totalAmount.value = config.totalCash;
+    totalAmount.value = config.subtotal;
+    hasDiscount.value = config.discountPercent > 0;
     if (config.headSerial != 0) {
       listOrderItems(config.headSerial);
       return;
@@ -428,6 +346,6 @@ late List<SideBarItem> sideBarItems = [
 
   @override
   void onClose() {
-    closeTable();
+    tableProvider.tablesCloseOrder(config.serial);
   }
 }

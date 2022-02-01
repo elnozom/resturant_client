@@ -64,26 +64,18 @@ class LoginWidgets {
 
   Widget buildQrControllers() {
     return Container(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(20.0),
       color: Colors.white,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          // Container(
-          //   margin: EdgeInsets.all(8),
-          //   child: IconButton(onPressed: (){qController?.flipCamera();}, icon: Icon(Icons.flash_on))
-          // ),
-          // Container(
-          //   margin: EdgeInsets.all(8),
-          //   child: FutureBuilder(future: qController?.getCameraInfo(),builder:(context, snapshot) => IconButton(onPressed: (){qController?.flipCamera();}, icon: Icon(Icons.flip_camera_android)))
-          // ),
-          
+       
         ElevatedButton(
                 onPressed: () {
                   toggleTabs(1);
                 },
-                child: Text('login_by_code', style: TextStyle(fontSize: 22))),
+                child: Text('login_by_code', style: TextStyle(fontSize: 32))),
         
         ],
       ),
@@ -95,32 +87,35 @@ class LoginWidgets {
       width: 500.0,
       color: Colors.white,
       alignment: Alignment.center,
-      child: NumericKeyboard(
-        boxDecoration: BoxDecoration(
-          color: Theme.of(context).primaryColor,
-          borderRadius: Globals().radius,
-          boxShadow: [Globals().shadow],
+      child: Directionality(
+        textDirection:TextDirection.ltr,
+              child: NumericKeyboard(
+          boxDecoration: BoxDecoration(
+            color: Theme.of(context).primaryColor,
+            borderRadius: Globals().radius,
+            boxShadow: [Globals().shadow],
+          ),
+          size: MediaQuery.of(context).size.width > 960 ? 100.0 : 60.0,
+          // bgColor: Theme.of(context).primaryColor,
+          onKeyboardTap: (val) {
+            keyPadActions.pressed(val);
+          },
+          textColor: Colors.white,
+          rightIcon: Icon(
+            Icons.check,
+            color: Colors.white,
+          ),
+          rightButtonFn: () {
+            keyPadActions.submit();
+          },
+          leftIcon: Icon(
+            Icons.backspace,
+            color: Colors.white,
+          ),
+          leftButtonFn: () {
+            keyPadActions.remove();
+          },
         ),
-        size: MediaQuery.of(context).size.width > 960 ? 100.0 : 60.0,
-        // bgColor: Theme.of(context).primaryColor,
-        onKeyboardTap: (val) {
-          keyPadActions.pressed(val);
-        },
-        textColor: Colors.white,
-        rightIcon: Icon(
-          Icons.check,
-          color: Colors.white,
-        ),
-        rightButtonFn: () {
-          keyPadActions.submit();
-        },
-        leftIcon: Icon(
-          Icons.backspace,
-          color: Colors.white,
-        ),
-        leftButtonFn: () {
-          keyPadActions.remove();
-        },
       ),
     );
   }

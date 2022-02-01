@@ -6,11 +6,11 @@ import 'package:client_v3/app/data/models/item/item_model.dart';
 class ItemProvider extends GetConnect {
   @override
   void onInit() {
-    httpClient.baseUrl = dotenv.env['API_URL'];
+    // httpClient.baseUrl = dotenv.env['API_URL'];
   }
 
-  Future<List<Item>> listItemsByGroup(int group) async {
-    final response = await get('${dotenv.env['API_URL']}item/${group}');
+  Future<List<Item>> listItemsByGroup(int group , int tableSerial) async {
+    final response = await get('${dotenv.env['API_URL']}item/${group}/${tableSerial}');
     // var body = response.body != null ? jsonDecode(response.body) : [];
      if (response.status.hasError) {
       return Future.error(response.statusText.toString());
@@ -24,6 +24,7 @@ class ItemProvider extends GetConnect {
       return items;
     }
   }
+
 
 
   Future< Map<int , List<Item>>> getItemModifers(int serial) async {

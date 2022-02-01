@@ -14,7 +14,6 @@ class LoadingWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           /// Loader Animation Widget
-
           CircularProgressIndicator(
             valueColor: new AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
           ),

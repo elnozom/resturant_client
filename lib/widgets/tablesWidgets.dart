@@ -11,7 +11,7 @@ class TablesWidgets {
       click(group.groupTableNo);
     }, child: Obx(() {
       return Container(
-        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
         margin: EdgeInsets.only(bottom: 5),
         alignment: Alignment.center,
         decoration: BoxDecoration(
@@ -74,14 +74,30 @@ class TablesWidgets {
               children: [
                  if(table.state == 'Working') Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [Text(table.openDateTime , style : TextStyle(color : Colors.white, fontSize: 10)),Text(table.docNo , style : TextStyle(color : Colors.white, fontSize: 10))],
+                  children: [
+                    Row(
+                      children: [
+                      Icon(Icons.schedule , color:Colors.white , size: 12,),
+                      SizedBox(width:2),
+                        Text(table.openTime , style : TextStyle(color : Colors.white, fontSize: 10)),
+                      ],
+                    )
+                    
+                    ,Text(table.docNo , style : TextStyle(color : Colors.white, fontSize: 10))],
                 ),
                 
                 Text(table.tableName, style: TextStyle(color : Colors.white, fontSize: 20 , fontWeight: FontWeight.bold),),
                 if(table.state == 'Free') Center(child: Text(table.status.tr , style: TextStyle(color : Colors.white,))),
                 if(table.state == 'Working')  Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [Text("${table.totalCash.toString()}EGP" , style: TextStyle(color : Colors.white, fontSize: 10),),Text("Guests:10" ,  style: TextStyle(color : Colors.white, fontSize: 10),)],
+                  children: [Text("${table.totalCash.toStringAsFixed(2)} EGP" , style: TextStyle(color : Colors.white, fontSize: 10),),
+                  Row(
+                    children: [
+                      Icon(Icons.person_outline , color:Colors.white , size: 14,),
+                      Text(table.guests.toString() ,  style: TextStyle(color : Colors.white, fontSize: 10)
+                      ,),
+                    ],
+                  )],
                 ),
               ]),
         ),

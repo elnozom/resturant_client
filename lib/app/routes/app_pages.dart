@@ -1,17 +1,19 @@
 import 'package:get/get.dart';
 
-import 'package:client_v3/app/modules/home/bindings/home_binding.dart';
-import 'package:client_v3/app/modules/home/views/home_view.dart';
-import 'package:client_v3/app/modules/login/bindings/login_binding.dart';
-import 'package:client_v3/app/modules/login/views/login_view.dart';
-import 'package:client_v3/app/modules/nocashtray/bindings/nocashtray_binding.dart';
-import 'package:client_v3/app/modules/nocashtray/views/nocashtray_view.dart';
-import 'package:client_v3/app/modules/order/bindings/order_binding.dart';
-import 'package:client_v3/app/modules/order/views/order_view.dart';
-import 'package:client_v3/app/modules/tables/bindings/tables_binding.dart';
-import 'package:client_v3/app/modules/tables/views/tables_view.dart';
-import 'package:client_v3/app/modules/unauthorized/bindings/unauthorized_binding.dart';
-import 'package:client_v3/app/modules/unauthorized/views/unauthorized_view.dart';
+import '../modules/home/bindings/home_binding.dart';
+import '../modules/home/views/home_view.dart';
+import '../modules/login/bindings/login_binding.dart';
+import '../modules/login/views/login_view.dart';
+import '../modules/nocashtray/bindings/nocashtray_binding.dart';
+import '../modules/nocashtray/views/nocashtray_view.dart';
+import '../modules/order/bindings/order_binding.dart';
+import '../modules/order/views/order_view.dart';
+import '../modules/settings/bindings/settings_binding.dart';
+import '../modules/settings/views/settings_view.dart';
+import '../modules/tables/bindings/tables_binding.dart';
+import '../modules/tables/views/tables_view.dart';
+import '../modules/unauthorized/bindings/unauthorized_binding.dart';
+import '../modules/unauthorized/views/unauthorized_view.dart';
 
 part 'app_routes.dart';
 
@@ -50,6 +52,11 @@ class AppPages {
       name: _Paths.NOCASHTRAY,
       page: () => NocashtrayView(),
       binding: NocashtrayBinding(),
+    ),
+    GetPage(
+      name: _Paths.SETTINGS,
+      page: () => SettingsView(),
+      binding: SettingsBinding(),
     ),
   ];
 }

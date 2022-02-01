@@ -22,11 +22,14 @@ class HomeView extends GetView<HomeController> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
-                  padding: EdgeInsets.only(left: 30),
-                  child: Image(
-                    image: AssetImage("assets/images/logo.png"),
-                    width: 100,
+                GestureDetector(
+                  onLongPress: () => Get.toNamed("/settings"),
+                                  child: Padding(
+                    padding: EdgeInsets.only(left: 30),
+                    child: Image(
+                      image: AssetImage("assets/images/logo.png"),
+                      width: 100,
+                    ),
                   ),
                 ),
                 Container(
@@ -36,9 +39,12 @@ class HomeView extends GetView<HomeController> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Image(
-                          image: AssetImage("assets/images/icon.png"),
-                          width: 50,
+                        GestureDetector(
+                  onLongPress: () => Get.toNamed("/settings"),
+                                  child: Image(
+                            image: AssetImage("assets/images/icon.png"),
+                            width: 50,
+                          ),
                         ),
                         SizedBox(width: 10,),
                         Flexible(

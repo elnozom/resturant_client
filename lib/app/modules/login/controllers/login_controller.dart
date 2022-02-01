@@ -61,6 +61,10 @@ class LoginController extends GetxController with SingleGetTickerProviderMixin {
       // and allow user to enter the pin
       empNoFound.value = false;
       passwordMode.value = true;
+
+
+      print(emp!.value.empPassword);
+
     });
 
     return emp != null ? emp!.value.empName : "";
@@ -69,6 +73,8 @@ class LoginController extends GetxController with SingleGetTickerProviderMixin {
 
   // call the api to perform login
   void login(password) {
+    print(password);
+    print(emp!.value.empPassword);
     // compare password
     if (password != emp!.value.empPassword) {
       password.value = "";
@@ -76,9 +82,11 @@ class LoginController extends GetxController with SingleGetTickerProviderMixin {
     }
     // success call back
 
-    Get.offNamed('/tables', arguments: [emp!.value.empCode]);
+    goToTables();
   }
-
+  void goToTables(){
+    Get.offNamed('/tables', arguments: emp!.value);
+  }
   void keyPadLeftIconEntered() {
     if (passwordMode.value) {
       password.value = password.value.substring(0, password.value.length - 1);
@@ -86,14 +94,17 @@ class LoginController extends GetxController with SingleGetTickerProviderMixin {
       codeController.text = codeController.text.substring(0, codeController.text.length - 1);
     }
   }
-
   void onQRViewCreated(QRViewController controller) {
     controller.scannedDataStream.listen((scanData) {
       result = scanData;
+      print(scanData.code);
       provider.empGetByBarCode(int.parse(scanData.code)).then((value) {
         if (value != null) {
-          Get.offNamed('/tables');
+          emp = value.obs;
+          goToTables();
         }
+      }).catchError((err){
+        print(err);
       });
     });
   }

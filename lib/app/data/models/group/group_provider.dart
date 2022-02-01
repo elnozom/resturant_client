@@ -6,7 +6,7 @@ import 'package:client_v3/app/data/models/group/subgroup_model.dart';
 class GroupProvider extends GetConnect {
   @override
   void onInit() {
-    httpClient.baseUrl = dotenv.env['API_URL'];
+    // httpClient.baseUrl = dotenv.env['API_URL'];
   }
 
   Future<List<GroupModel?>> listMainGroups() async {

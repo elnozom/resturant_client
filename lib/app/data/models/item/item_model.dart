@@ -1,5 +1,4 @@
-import 'package:get/get.dart';
-
+import 'package:get/state_manager.dart';
 
 class Item {
   late int itemSerial;
@@ -9,9 +8,11 @@ class Item {
   late int screen;
   late int orderItemSerial;
   late int mainModSerial;
-  late Rx<int>? qnt = 0.obs;
+  late int qnt = 0;
+  late String addItems = "";
+  late Rx<int>? qntReactive = 0.obs;
   Item({
-    required this.itemSerial, required this.itemPrice,  required this.itemName , required this.withModifier ,required this.orderItemSerial,this.qnt,required this.mainModSerial
+    required this.itemSerial, required this.itemPrice,  required this.itemName , required this.withModifier ,required this.orderItemSerial,required this.qnt,required this.mainModSerial ,  this.qntReactive , required this.addItems
     });
    
   Item.fromJson(Map<String, dynamic> json) {
@@ -22,6 +23,8 @@ class Item {
     itemName = json['ItemName'];
     withModifier = json['WithModifier'];
     screen = json['Screen'];
+    qnt = json['Qnt'];
+    addItems = json['AddItems'];
   }
 
   Map<String, dynamic> toJson() => {
@@ -32,6 +35,7 @@ class Item {
     "Screen" : screen,
     "OrderItemSerial" : orderItemSerial,
     "MainModSerial" : mainModSerial,
+    "AddItems" : addItems,
   };
 
   static Item newInstance() {
@@ -42,6 +46,8 @@ class Item {
       mainModSerial : 0,
       itemName : "",
       withModifier : false,
+      qnt : 0,
+      addItems: "",
     );
   }
 }
