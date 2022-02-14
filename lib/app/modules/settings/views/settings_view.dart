@@ -1,6 +1,7 @@
 import 'package:blue_thermal_printer/blue_thermal_printer.dart';
 import 'package:client_v3/app/widgets/loading.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:get/get.dart';
 
@@ -11,7 +12,7 @@ class SettingsView extends GetView<SettingsController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('SettingsView'),
+        title: Text('settings'.tr),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -22,9 +23,25 @@ class SettingsView extends GetView<SettingsController> {
               ? controller.printing.devicesDropDown()
               : LoadingWidget()),
           SizedBox(height: 10),
+          TextFormField(
+              controller: controller.ipInput,
+              decoration: InputDecoration(hintText: "url".tr)),
+          SizedBox(height: 10),
+
+          TextFormField(
+            controller: controller.portInput,
+             decoration: InputDecoration(hintText: "port".tr),
+          ),
+          SizedBox(height: 10),
+          TextFormField(
+            controller: controller.logoInput,
+             decoration: InputDecoration(hintText: "logo".tr),
+          ),
+          SizedBox(height: 10),
+
           Container(
             width: double.infinity,
-                      child: ElevatedButton(
+            child: ElevatedButton(
                 onPressed: () {
                   controller.save();
                 },

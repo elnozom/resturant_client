@@ -3,14 +3,16 @@ class Discount {
   late String discDesc;
   late double discValue;
   late bool delTax;
+  late int secLevel;
   Discount({
-    required this.discCode, required this.discDesc, required this.discValue , required this.delTax
+    required this.discCode, required this.discDesc, required this.discValue , required this.delTax , required this.secLevel
     });
   Discount.fromJson(Map<String, dynamic> json) {
     discCode = json['DiscCode'];
     discDesc = json['DiscDesc'];
     discValue = json['DiscValue'] is int ? json['DiscValue'].toDouble() : json['DiscValue'];;
     delTax = json['DelTax'];
+    secLevel = json['SecLevel'];
   }
 
   static Discount newInstance() {
@@ -19,6 +21,7 @@ class Discount {
       discDesc:"",
       discValue:0,
       delTax:false,
+      secLevel:0,
     );
   }
 }

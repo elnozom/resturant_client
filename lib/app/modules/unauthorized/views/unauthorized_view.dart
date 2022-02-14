@@ -38,11 +38,11 @@ class UnauthorizedView extends GetView<UnauthorizedController> {
                   textAlign: TextAlign.center,
                   style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black),
                 ),
-                Text(
-                  controller.key,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black),
-                ),
+                // Text(
+                //   controller.key,
+                //   textAlign: TextAlign.center,
+                //   style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black),
+                // ),
                 Directionality(
                   textDirection: TextDirection.ltr,
                   child: Text(

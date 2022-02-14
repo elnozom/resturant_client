@@ -1,12 +1,12 @@
-import 'package:client_v3/app/utils/globals.dart';
+import 'package:client_v3/app/modules/order/helpers/localStorage.dart';
 import 'package:device_information/device_information.dart';
 import 'package:get/get.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:client_v3/app/data/models/auth/emp_model.dart';
 import 'package:client_v3/app/data/models/auth/setting_model.dart';
 import 'package:permission_handler/permission_handler.dart';
 class AuthProvider extends GetConnect {
   // final _globals = Globals;
+  final localStorage = LocalStorage.instance;
   @override
   void onInit(){
     // httpClient.baseUrl = dotenv.env['API_URL'];
@@ -22,13 +22,13 @@ class AuthProvider extends GetConnect {
       return employee;
   }
   Future<Emp?> empGetByCode(int code) async {
-    final response = await get('${dotenv.env['API_URL']}employee/${code}');
+    final response = await get('${localStorage.getApiUrl()}employee/${code}');
     return _handleEmpResponse(response);
   }
 
   Future<Emp?> empGetByBarCode(int code) async {
     print("asd");
-    final response = await get('${dotenv.env['API_URL']}employee/barcode/${code}');
+    final response = await get('${localStorage.getApiUrl()}employee/barcode/${code}');
     // print(response.body);
     Emp? emp = await  _handleEmpResponse(response);
     return emp;
@@ -38,7 +38,7 @@ class AuthProvider extends GetConnect {
   Future<Setting?> checkDeviceAuthorization() async {
     await Permission.phone.request();
     String imei = await DeviceInformation.deviceIMEINumber;
-    var url = "${dotenv.env['API_URL']}authorize/${imei}";
+    var url = "${localStorage.getApiUrl()}authorize/${imei}";
     final response = await get(url);
    
     if (response.status.hasError) {
@@ -61,7 +61,7 @@ class AuthProvider extends GetConnect {
       "Imei" : imei,
       "ComName" : name
     };
-    final response = await post('${dotenv.env['API_URL']}authorize' , data);
+    final response = await post('${localStorage.getApiUrl()}authorize' , data);
      if (response.status.hasError) {
       return Future.error(response.statusText.toString());
     } 

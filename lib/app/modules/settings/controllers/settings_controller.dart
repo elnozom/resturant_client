@@ -1,24 +1,34 @@
 import 'dart:async';
 
+import 'package:client_v3/app/modules/order/helpers/localStorage.dart';
 import 'package:client_v3/app/modules/printing/printing.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-import 'package:blue_thermal_printer/blue_thermal_printer.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsController extends GetxController {
-  final printing = Printing.instance;
+  final Printing printing = Printing.instance;
+  final TextEditingController ipInput = new TextEditingController();
+  final TextEditingController portInput = new TextEditingController();
+  final TextEditingController logoInput = new TextEditingController();
+  final LocalStorage localStorage = LocalStorage.instance;
   @override
   void onInit() {
     super.onInit();
   }
   void save() async {
-   Get.offAllNamed("/home");
+    printing.getDevices();
+    localStorage.setIp(ipInput.text);
+    localStorage.setPort(portInput.text);
+    localStorage.setLogo(logoInput.text);
+    Get.offAllNamed("/home");
   }
   @override
   void onReady() {
     super.onReady();
     printing.getDevices();
+    ipInput.text = localStorage.ip;
+    portInput.text = localStorage.port;
+    logoInput.text = localStorage.logoPath;
   }
   @override
   void onClose() {}

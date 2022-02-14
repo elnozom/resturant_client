@@ -153,7 +153,7 @@ class Printing {
       String time = "Time:${val['Config']['DocTime']}";
       String table = "Table : ${val['Config']['TableNO']} - ${val['Config']['GroupTableName']}";
       String subtotal = "Subtotal: ${val['Config']['SubTotal'].toStringAsFixed(2)} L.E";
-      String tax = "Tax(14%) :${val['Config']['SaleTax'].toStringAsFixed(2)} L.E";
+      String tax = "Tax(${val['Config']['TaxPercent']}%) :${val['Config']['SaleTax'].toStringAsFixed(2)} L.E";
       String disc = "Disc(${val['Config']['DiscountPercent']}%) :${val['Config']['DiscountValue'].toStringAsFixed(2)} L.E";
       String total = "Grand Total ${val['Config']['Total'].toStringAsFixed(2)} L.E";
       String foot = "عميلنا العزيز يسعدنا تشريفكم";

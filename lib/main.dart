@@ -1,4 +1,5 @@
 import 'package:client_v3/LocaleString.dart';
+import 'package:client_v3/app/modules/order/helpers/localStorage.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
@@ -8,6 +9,9 @@ import 'app/routes/app_pages.dart';
 
 void main() async {
   await dotenv.load(fileName: ".env");
+  final LocalStorage localStorage = LocalStorage.instance;
+  await  localStorage.init();
+  
   runApp(
     GetMaterialApp(
       debugShowCheckedModeBanner: false,

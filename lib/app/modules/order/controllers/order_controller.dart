@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:client_v3/app/data/models/auth/emp_model.dart';
 import 'package:client_v3/app/data/models/customer/customer_provider.dart';
 import 'package:client_v3/app/modules/order/helpers/action.dart';
+import 'package:client_v3/app/modules/order/helpers/toatls.dart';
 import 'package:client_v3/app/modules/printing/printing.dart';
 import 'package:client_v3/app/modules/singletons/addons.dart';
 import 'package:device_information/device_information.dart';
@@ -57,6 +58,7 @@ class OrderController extends GetxController {
 
   bool createOrderLoading = false;
   final printing = Printing.instance;
+  final totals = Totals.instance;
   final addons = Addons.instance;
   // listing items & groups
   void listMainGroups() {
@@ -127,7 +129,7 @@ class OrderController extends GetxController {
   }
 
   // creat & delete items
-  void createItem(Item item) {
+  void createItem(Item item , BuildContext context) {
     Map i = {
       "HeadSerial": config.headSerial,
       "ItemSerial": item.itemSerial,
@@ -138,10 +140,15 @@ class OrderController extends GetxController {
     orderProvider.createOrderItem(i).then((value) {
       item.orderItemSerial = value;
       item.qntReactive!.value++;
-      totalAmount.value += item.itemPrice;
+      // totalAmount.value += item.itemPrice;
+      totals.append(item.itemPrice);
       orderItems == null
           ? orderItems = [item].obs
           : orderItems!.value.add(item);
+
+      if(item.withModifier){
+        getItemModifers(item, context);
+      }
     
     });
   }
@@ -155,6 +162,7 @@ class OrderController extends GetxController {
 
   void getItemModifers(item, context) {
     var modifiers;
+
     ItemProvider().getItemModifers(item.itemSerial).then((value) {
       modifiers = value;
       modifiersScreens = modifiers.length;
@@ -203,21 +211,17 @@ class OrderController extends GetxController {
   }
 
   void addItem(BuildContext context, Item item) async {
-    if(emp.secLevel > 4) {
-      Get.snackbar("error".tr, "not_allowed".tr);
-      return ;
-    }
+    
     if (createOrderLoading == true) return;
     if (config.headSerial == 0) {
       await createOrder(context, item);
       return;
     }
-    if (item.withModifier) {
-      createItem(item);
-      getItemModifers(item, context);
-      return;
+    if(emp.empCode != config.waiterCode) {
+      Get.snackbar("error".tr, "not_allowed".tr);
+      return ;
     }
-    createItem(item);
+    createItem(item , context);
   }
 
   Future createOrder(BuildContext context, Item item) async {
@@ -227,13 +231,14 @@ class OrderController extends GetxController {
         tableSerial: config.serial,
         imei: imei,
         orderType: 2,
-        waiterCode: config.waiterCode);
+        waiterCode: emp.empCode);
     orderProvider.createOrder(order).then((value) {
       DateTime now = new DateTime.now();
       config.headSerial = value.headSerial;
       config.docNo = value.docNo;
       config.openTime = "${now.hour} : ${now.minute}";
       config.openDate = "${now.year}/${now.month}/${now.day}";
+      config.waiterCode = emp.empCode;
       createOrderLoading = false;
       addItem(context, item);
     });
@@ -289,12 +294,12 @@ class OrderController extends GetxController {
         onTap: () {
           modifersSerials += ",${item.itemSerial}";
           item.mainModSerial = orderItemSerial;
+          createItemModifers(context, orderItemSerial);
           orderItems!.value.add(item);
           if (currentModifiersindex.value < modifiersScreens!) {
             currentModifiersindex.value++;
             return;
           }
-          createItemModifers(context, orderItemSerial);
         },
         child: Container(
             decoration: BoxDecoration(
@@ -335,8 +340,8 @@ class OrderController extends GetxController {
   @override
   void onReady() {
     super.onReady();
-    totalAmount.value = config.subtotal;
     hasDiscount.value = config.discountPercent > 0;
+    totals.init(config.subtotal , config.discountPercent);
     if (config.headSerial != 0) {
       listOrderItems(config.headSerial);
       return;
@@ -346,6 +351,6 @@ class OrderController extends GetxController {
 
   @override
   void onClose() {
-    tableProvider.tablesCloseOrder(config.serial);
+    tableProvider.tablesCloseOrder(config.serial , config.headSerial);
   }
 }

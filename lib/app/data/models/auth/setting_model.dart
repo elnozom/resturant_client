@@ -2,8 +2,6 @@ class Setting {
   late String comName;
   late String capital;
   late int cashtraySerial;
-
-
   Setting({
     required this.comName,
     required this.capital,

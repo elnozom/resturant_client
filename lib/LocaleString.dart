@@ -19,6 +19,7 @@ class LocaleString extends Translations{
       "paused":"someone is working on this table right now",
       "unauthorized":"this table dosn't belong to you",
       "error": "error",
+      "tax" : "TAX",
       "connection_error": "somthing wrong happened while trying to connect to the server ",
       "login_desc" : "we need to verify who you are , so choose login method to continue"
     },
@@ -45,6 +46,7 @@ class LocaleString extends Translations{
       "discount" : "خصم",
       "name" : "الاسم",
       "price" : "السعر",
+      "tax" : "الضريبة",
       "qnt" : "الكمية"
     },
   };

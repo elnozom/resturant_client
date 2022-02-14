@@ -1,3 +1,4 @@
+import 'package:client_v3/app/data/models/item/item_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:client_v3/app/widgets/loading.dart';
@@ -64,10 +65,13 @@ class OrderView extends GetView<OrderController> {
                               SizedBox(width: isMobile ? 10 : 30),
                               GestureDetector(
                                   onTap: () {
-                                    print("asd");
                                     controller.tableProvider.tablesCloseOrder(
-                                        controller.config.serial);
-                                    Get.offAllNamed("/home");
+                                        controller.config.serial , controller.config.headSerial).then((value) {
+                                          print(value) ;
+                                          Get.offAllNamed("/home");
+                                        }).catchError((err) {
+                                          print(err);
+                                        });
                                   },
                                   child: Column(
                                     children: [
@@ -80,9 +84,33 @@ class OrderView extends GetView<OrderController> {
                                               fontSize: isMobile ? 16 : 18))
                                     ],
                                   )),
+                                  
                                   SizedBox(width: isMobile ? 10 : 30),
                              
-                              SizedBox(width: isMobile ? 10 : 30),
+                              GestureDetector(
+                                  onTap: () {
+                                    if(controller.orderItems == null){
+                                      Get.snackbar("error".tr, "choose_item".tr);
+                                      return ;
+                                    }
+                                    List<Item> items = controller.orderItems!.value;
+                                    items.removeWhere((i) => i.itemPrice == 0);
+                                    int lastId = items[items.length - 1].orderItemSerial;
+                                 
+                                   controller.addons.setItemSerial(context, lastId);
+                                   controller.reloadItems = true;
+                                  },
+                                  child: Column(
+                                    children: [
+                                      Icon(Icons.add_circle_outline,
+                                          color: Colors.white,
+                                          size: isMobile ? 25 : 40),
+                                      Text('addons'.tr,
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: isMobile ? 16 : 18))
+                                    ],
+                                  )),
                             ],
                           ),
                         ],

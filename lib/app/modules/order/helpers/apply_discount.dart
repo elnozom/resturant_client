@@ -1,9 +1,9 @@
+import 'package:client_v3/app/data/models/auth/emp_model.dart';
 import 'package:client_v3/app/data/models/discount/discount_model.dart';
 import 'package:client_v3/app/data/models/table/table_model.dart';
 import 'package:client_v3/app/modules/order/controllers/order_controller.dart';
 import 'package:client_v3/app/modules/order/helpers/action.dart';
-import 'package:client_v3/app/data/models/customer/customer_model.dart';
-import 'package:client_v3/app/data/models/customer/customer_provider.dart';
+import 'package:client_v3/app/modules/order/helpers/toatls.dart';
 import 'package:client_v3/app/modules/order/helpers/updateActions.dart';
 import 'package:client_v3/app/widgets/loading.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +16,10 @@ class ApplyDiscount extends UpdateActions implements ActionInterface {
   TextEditingController discountCommentInput = new TextEditingController();
   FocusNode discountCommentFocus = new FocusNode();
   Rx<bool> err = false.obs;
-  ApplyDiscount(TableModel config) : super(config) {
+  Emp? emp;
+  final Totals totals = Totals.instance;
+  ApplyDiscount(TableModel config , Emp e) : super(config) {
+    emp =e;
     getDiscounts();
   }
 
@@ -31,8 +34,10 @@ class ApplyDiscount extends UpdateActions implements ActionInterface {
   List<DropdownMenuItem<Discount>> discountsDropDown() {
     List<DropdownMenuItem<Discount>> list = [];
     for (var i = 0; i < discounts.length; i++) {
-      list.add(DropdownMenuItem<Discount>(
-          child: Text(discounts[i].discDesc), value: discounts[i]));
+      if(discounts[i].secLevel <= emp!.secLevel) {
+        list.add(DropdownMenuItem<Discount>(
+            child: Text(discounts[i].discDesc), value: discounts[i]));
+      }
     }
     return list;
   }
@@ -103,6 +108,7 @@ class ApplyDiscount extends UpdateActions implements ActionInterface {
     orderProvider.applyDiscount(req).then((value) {
       controller.hasDiscount.value = true;
       controller.config.discountPercent = selectedDiscount!.discValue.toInt();
+      totals.applyDiscount(selectedDiscount!.discValue.toInt());
       reset(context);
     });
   }

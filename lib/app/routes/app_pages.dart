@@ -58,5 +58,6 @@ class AppPages {
       page: () => SettingsView(),
       binding: SettingsBinding(),
     ),
+ 
   ];
 }

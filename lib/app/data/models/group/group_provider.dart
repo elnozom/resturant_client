@@ -2,15 +2,18 @@ import 'package:get/get.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:client_v3/app/data/models/group/group_model.dart';
 import 'package:client_v3/app/data/models/group/subgroup_model.dart';
+import 'package:client_v3/app/modules/order/helpers/localStorage.dart';
 
 class GroupProvider extends GetConnect {
+  final localStorage = LocalStorage.instance;
+
   @override
   void onInit() {
-    // httpClient.baseUrl = dotenv.env['API_URL'];
+    // httpClient.baseUrl = localStorage.getApiUrl();
   }
 
   Future<List<GroupModel?>> listMainGroups() async {
-    final response = await get('${dotenv.env['API_URL']}group');
+    final response = await get('${localStorage.getApiUrl()}group');
     // var body = response.body != null ? jsonDecode(response.body) : [];
      if (response.status.hasError) {
       return Future.error(response.statusText.toString());
@@ -28,7 +31,7 @@ class GroupProvider extends GetConnect {
 
 
   Future<List<SubGroupModel>?> listSubGroups(int code) async {
-    final response = await get('${dotenv.env['API_URL']}group/${code}');
+    final response = await get('${localStorage.getApiUrl()}group/${code}');
     // var body = response.body != null ? jsonDecode(response.body) : [];
      if (response.status.hasError) {
       return Future.error(response.statusText.toString());

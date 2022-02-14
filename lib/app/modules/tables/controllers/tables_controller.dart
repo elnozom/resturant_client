@@ -19,10 +19,12 @@ class TablesController extends GetxController {
   Emp emp = Get.arguments;
 
   void chooseTable(TableModel table) {
+    
     provider.tablesOpenOrder(table.serial, emp.empCode).then((value) {
-      table.waiterCode = emp.empCode;
+      // table.waiterCode = emp.empCode;
       if (value.isOrderOpened) {
         Get.offNamed("/order", arguments: [table , emp]);
+        
       } else {
         Get.snackbar(
           "not_allowed".tr,

@@ -28,7 +28,7 @@ class OrderWidgets extends GetView<OrderController> {
       Get.put(ChangeCustomer(controller.config));
   late ChangeWaiter chgWaiterClass = Get.put(ChangeWaiter(controller.config));
   late ChangeGuestsNo chgGuestsNo = Get.put(ChangeGuestsNo(controller.config));
-  late ApplyDiscount applyDisc = Get.put(ApplyDiscount(controller.config));
+  late ApplyDiscount applyDisc = Get.put(ApplyDiscount(controller.config,controller.emp ));
   late Split split = Get.put(Split(controller.config));
   late List<SideBarItem> sideBarItems = [
     SideBarItem(
@@ -330,7 +330,11 @@ class OrderWidgets extends GetView<OrderController> {
         ),
       ),
       child: Container(
-        height: isMod ? 30 : item.addItems == "" ? 40 : 55,
+        height: isMod
+            ? 30
+            : item.addItems == ""
+                ? 40
+                : 55,
         // alignment: Alignment.center,
         decoration: BoxDecoration(
           border: Border(
@@ -345,14 +349,20 @@ class OrderWidgets extends GetView<OrderController> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Expanded(
-                child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-
-                  children: [
-                    Text(item.itemName,
-                        style: TextStyle(fontSize: isMod ? 14 : 18)),
-                      if(item.addItems != "")  Text(item.addItems ,style: TextStyle(fontSize: 10 , color: Colors.grey.shade800))
-                  ],
+                child: RichText(
+                  maxLines: 2,
+                  text: TextSpan(
+                    text: item.itemName,
+                    style: TextStyle(
+                        fontSize: isMod ? 14 : 18, color: Colors.black),
+                    children: <TextSpan>[
+                      if (item.addItems != "")
+                        TextSpan(
+                            text: "(${item.addItems})",
+                            style: TextStyle(
+                                fontSize: 10, color: Colors.grey.shade800 , fontWeight: FontWeight.bold)),
+                    ],
+                  ),
                 ),
                 flex: 7),
             Expanded(
@@ -361,21 +371,28 @@ class OrderWidgets extends GetView<OrderController> {
                     style: TextStyle(fontSize: isMod ? 14 : 18)),
                 flex: 2),
             Expanded(
-                child: Text('1',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: isMod ? 14 : 18)),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Text(
+                      '1',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: isMod ? 14 : 18),
+                    ),
+                    if (!isMod)
+                      GestureDetector(
+                        onTap: () {
+                          controller.reloadItems = true;
+                          controller.addons
+                              .setItemSerial(context, item.orderItemSerial);
+                        },
+                        child: Icon(Icons.add_circle_outline,
+                            color: Colors.black, size: 20),
+                      ),
+                  ],
+                ),
                 flex: 2),
-                if(!isMod) GestureDetector(
-                   onTap: (){
-                     controller.addons.setItemSerial(context , item.orderItemSerial);
-                   },
-                                    child: Expanded(
-                child: Icon(Icons.add_circle_outline,
-                                            color: Colors.black,
-                                            size: 20),
-                flex: 1),
-                 ),
-                
           ],
         ),
       ),
@@ -423,108 +440,108 @@ class OrderWidgets extends GetView<OrderController> {
   }
 
   Scaffold orderItemsAndTotalsSide(BuildContext context) {
+    var totals = controller.totals.getTotals();
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(15.0),
-          child: Column(children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(controller.config.docNo,
-                    style: Theme.of(context).textTheme.headline1),
-                Text(controller.config.openTime,
-                    style: Theme.of(context).textTheme.headline6)
-              ],
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            tableHeader(),
-            orderItemsTableRows(context)
-          ]),
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: Column(children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(controller.config.docNo,
+                      style: Theme.of(context).textTheme.headline1),
+                  Text(controller.config.openTime,
+                      style: Theme.of(context).textTheme.headline6)
+                ],
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              tableHeader(),
+              orderItemsTableRows(context)
+            ]),
+          ),
         ),
-      ),
-      bottomNavigationBar: Obx(()  {
-        return Container(
-        height:controller.hasDiscount.value ? 160 :125,
-        padding: EdgeInsets.all(15.0),
-        decoration: BoxDecoration(),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        bottomNavigationBar: Obx(() {
+          return Container(
+            height: controller.hasDiscount.value ? 160 : 125,
+            padding: EdgeInsets.all(15.0),
+            decoration: BoxDecoration(),
+            child: Column(
               children: [
-                Text(
-                  'subtotal'.tr,
-                  style: Theme.of(context).textTheme.headline1,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'subtotal'.tr,
+                      style: Theme.of(context).textTheme.headline1,
+                    ),
+                    Text(
+                      totals.amount.toStringAsFixed(2),
+                      style: Theme.of(context).textTheme.headline1,
+                    )
+                  ],
                 ),
-                Text(
-                  controller.totalAmount.toStringAsFixed(2),
-                  style: Theme.of(context).textTheme.headline1,
-                )
-              ],
-            ),
-             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                RichText(
-                  text: TextSpan(
-                    text: 'TAX'.tr,
-                    style: Theme.of(context).textTheme.headline1,
-                    children: <TextSpan>[
-                      TextSpan(
-                          text:
-                              '(14%)',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
+                if(totals.taxPercent > 0)  Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    RichText(
+                      text: TextSpan(
+                        text: 'tax'.tr,
+                        style: Theme.of(context).textTheme.headline1,
+                        children: <TextSpan>[
+                          TextSpan(
+                              text: '(${totals.taxPercent}%)',
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    ),
+                    Text(
+                      totals.tax.toStringAsFixed(2),
+                      style: Theme.of(context).textTheme.headline1,
+                    )
+                  ],
+                ),
+                if (controller.hasDiscount.value)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      RichText(
+                        text: TextSpan(
+                          text: 'discount'.tr,
+                          style: Theme.of(context).textTheme.headline1,
+                          children: <TextSpan>[
+                            TextSpan(
+                                text:
+                                    '(${controller.config.discountPercent.toString()}%)',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                      ),
+                      Text(
+                        totals.discount
+                            .toStringAsFixed(2),
+                        style: Theme.of(context).textTheme.headline1,
+                      )
                     ],
                   ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'total'.tr,
+                      style: Theme.of(context).textTheme.headline1,
+                    ),
+                    Text(
+                      totals.total.toStringAsFixed(2),
+                      style: Theme.of(context).textTheme.headline1,
+                    )
+                  ],
                 ),
-                Text(
-                  (controller.totalAmount * .14).toStringAsFixed(2),
-                  style: Theme.of(context).textTheme.headline1,
-                )
               ],
             ),
-            if( controller.hasDiscount.value ) Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                RichText(
-                  text: TextSpan(
-                    text: 'discount'.tr,
-                    style: Theme.of(context).textTheme.headline1,
-                    children: <TextSpan>[
-                      TextSpan(
-                          text:
-                              '(${controller.config.discountPercent.toString()}%)',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                ),
-                Text(
-                  ( controller.config.discountPercent.toDouble() * controller.totalAmount.value / 100.0).toStringAsFixed(2),
-                  style: Theme.of(context).textTheme.headline1,
-                )
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'total'.tr,
-                  style: Theme.of(context).textTheme.headline1,
-                ),
-                Text(
-                  (controller.totalAmount + (controller.totalAmount * .14))
-                      .toStringAsFixed(2),
-                  style: Theme.of(context).textTheme.headline1,
-                )
-              ],
-            ),
-          ],
-        ),
-      );
-      }  ) 
-    );
+          );
+        }));
   }
 }

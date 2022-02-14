@@ -3,16 +3,18 @@ import 'package:get/get.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:client_v3/app/data/models/item/item_model.dart';
 
+import 'package:client_v3/app/modules/order/helpers/localStorage.dart';
 
 class CustomerProvider extends GetConnect {
+  final localStorage = LocalStorage.instance;
   @override
   void onInit() {
-    // httpClient.baseUrl = dotenv.env['API_URL'];
+    // httpClient.baseUrl = localStorage.getApiUrl();
   }
 
 
   Future<List<Customer>> listCustomersByName(String name) async{
-    final response = await get('${dotenv.env['API_URL']}customers?name${name}');
+    final response = await get('${localStorage.getApiUrl()}customers?name${name}');
     if (response.status.hasError) {
       
       return Future.error(response.statusText.toString());

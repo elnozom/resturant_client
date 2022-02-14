@@ -11,6 +11,7 @@ abstract class Routes {
   static const UNAUTHORIZED = _Paths.UNAUTHORIZED;
   static const NOCASHTRAY = _Paths.NOCASHTRAY;
   static const SETTINGS = _Paths.SETTINGS;
+  static const QR = _Paths.QR;
 }
 
 abstract class _Paths {
@@ -21,4 +22,5 @@ abstract class _Paths {
   static const UNAUTHORIZED = '/unauthorized';
   static const NOCASHTRAY = '/nocashtray';
   static const SETTINGS = '/settings';
+  static const QR = '/qr';
 }

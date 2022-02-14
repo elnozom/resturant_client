@@ -5,8 +5,9 @@ import 'package:client_v3/app/data/models/table/table_provider.dart';
 
 class HomeController extends GetxController {
   void authorizeDevice() async{
-    TableProvider().tablesCloseOrder(0);
+    // TableProvider().tablesCloseOrder(0);
     AuthProvider().checkDeviceAuthorization().then((value) {
+       print(value);
       if(value == null){
         Get.offAllNamed('/unauthorized');
         return ;
@@ -32,7 +33,7 @@ class HomeController extends GetxController {
   @override
   void onReady() {
     super.onReady();
-    TableProvider().tablesCloseOrder(0);
+    // TableProvider().tablesCloseOrder(0);
   }
 
   @override
