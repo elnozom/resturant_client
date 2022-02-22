@@ -20,8 +20,11 @@ class TablesController extends GetxController {
 
   void chooseTable(TableModel table) {
     
-    provider.tablesOpenOrder(table.serial, emp.empCode).then((value) {
+    provider.tablesOpenOrder(table.serial, emp.empCode , table.headSerial).then((value) {
       // table.waiterCode = emp.empCode;
+       print("value.msg");
+        print(value.msg == "order_finished");
+        if(value.msg == "order_finished") getTables(activeGroup.value);
       if (value.isOrderOpened) {
         Get.offNamed("/order", arguments: [table , emp]);
         
@@ -30,6 +33,7 @@ class TablesController extends GetxController {
           "not_allowed".tr,
           value.msg.tr,
         );
+       
       }
     });
     // Get.toNamed('login' , arguments: config);

@@ -42,6 +42,10 @@ class Totals {
     amount.value += val;
     _calc();
   }
+  void remove(double val){
+    amount.value -= val;
+    _calc();
+  }
 
   void applyDiscount(int val){
     percent.value = val;

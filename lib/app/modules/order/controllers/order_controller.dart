@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:client_v3/app/data/models/auth/emp_model.dart';
 import 'package:client_v3/app/data/models/customer/customer_provider.dart';
 import 'package:client_v3/app/modules/order/helpers/action.dart';
+import 'package:client_v3/app/modules/order/helpers/items.dart';
 import 'package:client_v3/app/modules/order/helpers/toatls.dart';
 import 'package:client_v3/app/modules/printing/printing.dart';
 import 'package:client_v3/app/modules/singletons/addons.dart';
-import 'package:device_information/device_information.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:client_v3/app/data/models/group/group_model.dart';
@@ -14,7 +14,6 @@ import 'package:client_v3/app/data/models/group/group_provider.dart';
 import 'package:client_v3/app/data/models/group/subgroup_model.dart';
 import 'package:client_v3/app/data/models/item/item_model.dart';
 import 'package:client_v3/app/data/models/item/item_provider.dart';
-import 'package:client_v3/app/data/models/order/order_model.dart';
 import 'package:client_v3/app/data/models/order/order_provider.dart';
 import 'package:client_v3/app/data/models/table/table_model.dart';
 import 'package:client_v3/app/data/models/table/table_provider.dart';
@@ -60,6 +59,7 @@ class OrderController extends GetxController {
   final printing = Printing.instance;
   final totals = Totals.instance;
   final addons = Addons.instance;
+  final itemsC = ItemsUtil.instance;
   // listing items & groups
   void listMainGroups() {
     groupProvider.listMainGroups().then((value) {
@@ -68,8 +68,16 @@ class OrderController extends GetxController {
     });
   }
 
+ 
+  
   void openUpdateModal(ActionInterface action, context) {
-    if(emp.secLevel < 2){
+    if(action.actionTitle == "change_table".tr){
+      if(config.subtotal == 0) {
+        Get.snackbar("error".tr, "not_allowed_before_send".tr);
+        return ;
+      }
+    }
+    if(emp.secLevel < 2 && action.actionTitle != "change_table".tr){
       Get.snackbar("error".tr, "not_allowed".tr);
       return ;
     }
@@ -102,7 +110,8 @@ class OrderController extends GetxController {
       subGroupsLoading.value = false;
       loading.value = false;
       activeSubGroup = subGroups!.value.first.groupCode;
-      listItems();
+      // listItems();
+      itemsC.init(activeSubGroup!, emp, config);
     });
   }
 
@@ -128,151 +137,11 @@ class OrderController extends GetxController {
     });
   }
 
-  // creat & delete items
-  void createItem(Item item , BuildContext context) {
-    Map i = {
-      "HeadSerial": config.headSerial,
-      "ItemSerial": item.itemSerial,
-      "WithMod": item.withModifier,
-      "IsMod": false,
-    };
 
-    orderProvider.createOrderItem(i).then((value) {
-      item.orderItemSerial = value;
-      item.qntReactive!.value++;
-      // totalAmount.value += item.itemPrice;
-      totals.append(item.itemPrice);
-      orderItems == null
-          ? orderItems = [item].obs
-          : orderItems!.value.add(item);
 
-      if(item.withModifier){
-        getItemModifers(item, context);
-      }
-    
-    });
-  }
-
-  void deleteItem(Item item) {
-    orderProvider.deleteOrderItem(item.orderItemSerial).then((value) {
-      listOrderItems(config.headSerial);
-      listItems();
-    });
-  }
-
-  void getItemModifers(item, context) {
-    var modifiers;
-
-    ItemProvider().getItemModifers(item.itemSerial).then((value) {
-      modifiers = value;
-      modifiersScreens = modifiers.length;
-      currentModifiersindex.value = 1;
-      Get.bottomSheet(Obx(() {
-        return WillPopScope(
-          onWillPop: () async => true,
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Center(
-                    child: Text(
-                  " ${currentModifiersindex} اضافة",
-                  style: TextStyle(color: Colors.black),
-                )),
-                ElevatedButton(
-                  child: Text("done".tr),
-                  onPressed: () {
-                    createItemModifers(context, item.orderItemSerial);
-                  },
-                ),
-                SizedBox(
-                  height: 400,
-                  child: modifiersGrid(
-                      context,
-                      modifiers[currentModifiersindex.value],
-                      item.orderItemSerial),
-                ),
-              ],
-            ),
-          ),
-        );
-      }),
-          elevation: 20.0,
-          enableDrag: false,
-          backgroundColor: Colors.white,
-          persistent: true,
-          isDismissible: false,
-          useRootNavigator: false,
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(30.0),
-            topRight: Radius.circular(30.0),
-          )));
-    });
-  }
-
-  void addItem(BuildContext context, Item item) async {
-    
-    if (createOrderLoading == true) return;
-    if (config.headSerial == 0) {
-      await createOrder(context, item);
-      return;
-    }
-    if(emp.empCode != config.waiterCode) {
-      Get.snackbar("error".tr, "not_allowed".tr);
-      return ;
-    }
-    createItem(item , context);
-  }
-
-  Future createOrder(BuildContext context, Item item) async {
-    createOrderLoading = true;
-    String imei = await DeviceInformation.deviceIMEINumber;
-    Order order = new Order(
-        tableSerial: config.serial,
-        imei: imei,
-        orderType: 2,
-        waiterCode: emp.empCode);
-    orderProvider.createOrder(order).then((value) {
-      DateTime now = new DateTime.now();
-      config.headSerial = value.headSerial;
-      config.docNo = value.docNo;
-      config.openTime = "${now.hour} : ${now.minute}";
-      config.openDate = "${now.year}/${now.month}/${now.day}";
-      config.waiterCode = emp.empCode;
-      createOrderLoading = false;
-      addItem(context, item);
-    });
-  }
-
-  void createItemModifers(BuildContext context, int orderItemSerial) {
-    // remove the first comma from modifiers serials string
-    // ",1,2,3" => "1,2,3"
-    String sreials = modifersSerials.substring(1);
-    Map insertItemModifersReq = {
-      "ItemsSerials": sreials,
-      "HeadSerial": config.headSerial,
-      "OrderItemSerial": orderItemSerial
-    };
-    orderProvider.createOrderItemModifers(insertItemModifersReq).then((value) {
-      modifersSerials = "";
-      Navigator.pop(context);
-    });
-  }
 
   void openItems(context) {
-    if (reloadItems) listOrderItems(config.headSerial);
-    Get.bottomSheet(Obx(() {
-      if (orderItemsLoading.value) return LoadingWidget();
-      if (orderItems == null || orderItems!.value.length == 0)
-        return Container(
-            height: 100,
-            child: Center(
-                child: Text(
-              "no_items".tr,
-              style: TextStyle(color: Colors.black),
-            )));
-      return widgets.orderItemsAndTotalsSide(context);
-    }),
+    Get.bottomSheet(widgets.orderItemsAndTotalsSide(context),
         elevation: 20.0,
         enableDrag: false,
         backgroundColor: Colors.white,
@@ -283,51 +152,11 @@ class OrderController extends GetxController {
         )));
   }
 
-  Widget modifiersGrid(context, items, orderItemSerial) {
-    if (itemsLoading.value) {
-      return LoadingWidget();
-    }
-    List<Widget> widget = [];
-    for (var i = 0; i < items.length; i++) {
-      var item = items[i];
-      widget.add(GestureDetector(
-        onTap: () {
-          modifersSerials += ",${item.itemSerial}";
-          item.mainModSerial = orderItemSerial;
-          createItemModifers(context, orderItemSerial);
-          orderItems!.value.add(item);
-          if (currentModifiersindex.value < modifiersScreens!) {
-            currentModifiersindex.value++;
-            return;
-          }
-        },
-        child: Container(
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(5),
-                color: Theme.of(context).primaryColor),
-            padding: EdgeInsets.fromLTRB(5, 5, 10, 0),
-            child: Center(
-              child: Text(
-                item.itemName,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                style: TextStyle(color: Colors.white),
-              ),
-            )),
-      ));
-    }
-    return Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: GridView.count(
-            childAspectRatio: .8,
-            padding: EdgeInsets.all(10),
-            crossAxisCount: MediaQuery.of(context).size.width < 960 ? 4 : 8,
-            crossAxisSpacing: 10.0,
-            mainAxisSpacing: 10.0,
-            children: widget));
-  }
   
   void printReceipt() {
+    if(emp.secLevel == 1 && config.printTimes > 0){
+      Get.snackbar("error".tr, "print_not_allowed".tr);
+    }
     printing.setHeadSerial(config.headSerial);
   }
 
@@ -342,11 +171,7 @@ class OrderController extends GetxController {
     super.onReady();
     hasDiscount.value = config.discountPercent > 0;
     totals.init(config.subtotal , config.discountPercent);
-    if (config.headSerial != 0) {
-      listOrderItems(config.headSerial);
-      return;
-    }
-    orderItemsLoading.value = false;
+    itemsC.reset();
   }
 
   @override

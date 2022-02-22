@@ -1,11 +1,11 @@
-import 'package:client_v3/app/utils/globals.dart';
+
 import 'package:get/get.dart';
 import 'package:client_v3/app/data/models/auth/auth_provider.dart';
-import 'package:client_v3/app/data/models/table/table_provider.dart';
+
 
 class HomeController extends GetxController {
+  
   void authorizeDevice() async{
-    // TableProvider().tablesCloseOrder(0);
     AuthProvider().checkDeviceAuthorization().then((value) {
        print(value);
       if(value == null){

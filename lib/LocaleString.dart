@@ -13,6 +13,7 @@ class LocaleString extends Translations{
       "login_by_qr" : "login by qr code",
       "emp_password_err" : "password is incorrect",
       'welcome':'welcome',
+      "order_finished" : "this order has been finished",
       "not_allowed":"not allowed",
       "Working_without_cheque":"working - not settled",
       "Working_with_cheque":"working - settled",
@@ -46,6 +47,7 @@ class LocaleString extends Translations{
       "discount" : "خصم",
       "name" : "الاسم",
       "price" : "السعر",
+      "order_finished" : "تم الانتهاء من هذا الطلب",
       "tax" : "الضريبة",
       "qnt" : "الكمية"
     },

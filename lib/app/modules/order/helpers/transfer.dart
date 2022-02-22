@@ -1,5 +1,6 @@
 import 'package:client_v3/app/data/models/table/table_model.dart';
 import 'package:client_v3/app/modules/order/helpers/action.dart';
+import 'package:client_v3/app/modules/order/helpers/items.dart';
 import 'package:client_v3/app/modules/order/helpers/tables_form.dart';
 import 'package:client_v3/app/modules/order/helpers/transfer_widgets.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import 'package:get/get.dart';
 class Transfer extends TablesForm with TransferWidgets implements ActionInterface {
   Rx<int> currentStep = 0.obs;
  
+  // ItemsUtil itemsUtil = ItemsUtil.instance;
 
   Transfer(TableModel config) : super(config); 
   List<Step> stepList(context) => [
@@ -67,6 +69,8 @@ class Transfer extends TablesForm with TransferWidgets implements ActionInterfac
             transferedOrderItemsStr, config.waiterCode, selectedTable!.serial , false)
         .then((value) {
       reset(context);
+          // itemsUtil.listOrderItems();
+
     });
   }
 }

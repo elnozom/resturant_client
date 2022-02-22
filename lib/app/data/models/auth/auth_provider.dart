@@ -26,8 +26,7 @@ class AuthProvider extends GetConnect {
     return _handleEmpResponse(response);
   }
 
-  Future<Emp?> empGetByBarCode(int code) async {
-    print("asd");
+  Future<Emp?> empGetByBarCode(String code) async {
     final response = await get('${localStorage.getApiUrl()}employee/barcode/${code}');
     // print(response.body);
     Emp? emp = await  _handleEmpResponse(response);
@@ -67,4 +66,14 @@ class AuthProvider extends GetConnect {
     } 
     return response.body;
   }
+  Future<bool?> closeDeviceTables(int code) async {
+    String imei = await DeviceInformation.deviceIMEINumber;
+    final response = await put('${localStorage.getApiUrl()}tables/device/close/${imei}' ,  {});
+     if (response.status.hasError) {
+      return Future.error(response.statusText.toString());
+    } 
+    return response.body;
+  }
+   
+
 }

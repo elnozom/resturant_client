@@ -5,14 +5,14 @@ class Item {
   late double itemPrice;
   late String itemName;
   late bool withModifier;
-  late int screen;
   late int orderItemSerial;
   late int mainModSerial;
   late int qnt = 0;
   late String addItems = "";
   late Rx<int>? qntReactive = 0.obs;
+  late bool printed = false;
   Item({
-    required this.itemSerial, required this.itemPrice,  required this.itemName , required this.withModifier ,required this.orderItemSerial,required this.qnt,required this.mainModSerial ,  this.qntReactive , required this.addItems
+    required this.itemSerial, required this.itemPrice,  required this.itemName , required this.withModifier ,required this.orderItemSerial,required this.qnt,required this.mainModSerial ,  this.qntReactive , required this.addItems , required this.printed
     });
    
   Item.fromJson(Map<String, dynamic> json) {
@@ -22,9 +22,10 @@ class Item {
     mainModSerial = json['MainModSerial'];
     itemName = json['ItemName'];
     withModifier = json['WithModifier'];
-    screen = json['Screen'];
     qnt = json['Qnt'];
     addItems = json['AddItems'];
+    printed = json['Printed'];
+    
   }
 
   Map<String, dynamic> toJson() => {
@@ -32,10 +33,10 @@ class Item {
     "ItemPrice" : itemPrice,
     "ItemName" : itemName,
     "WithModifier" : withModifier,
-    "Screen" : screen,
     "OrderItemSerial" : orderItemSerial,
     "MainModSerial" : mainModSerial,
     "AddItems" : addItems,
+    
   };
 
   static Item newInstance() {
@@ -48,6 +49,8 @@ class Item {
       withModifier : false,
       qnt : 0,
       addItems: "",
+      printed: false,
+      
     );
   }
 }

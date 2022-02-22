@@ -81,8 +81,10 @@ class LoginController extends GetxController with SingleGetTickerProviderMixin {
       return;
     }
     // success call back
+    provider.closeDeviceTables(emp!.value.empCode).then((value) {
+      goToTables();
+    });
 
-    goToTables();
   }
   void goToTables(){
     Get.offNamed('/tables', arguments: emp!.value);
@@ -95,10 +97,10 @@ class LoginController extends GetxController with SingleGetTickerProviderMixin {
     }
   }
   void onQRViewCreated(QRViewController controller) {
+    print('hi');
     controller.scannedDataStream.listen((scanData) {
-      result = scanData;
-      print(scanData.code);
-      provider.empGetByBarCode(int.parse(scanData.code)).then((value) {
+  
+      provider.empGetByBarCode(scanData.code).then((value) {
         if (value != null) {
           emp = value.obs;
           goToTables();

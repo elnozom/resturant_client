@@ -31,7 +31,7 @@ class OrderProvider extends GetConnect {
     // print(response.body.runtimeType);
     return response.body.cast<String>();
   }
-  Future<List<String>> applyAddons(int serial , String addons) async {
+  Future<bool> applyAddons(int serial , String addons) async {
     Map req = {
       "Serial" :serial,
       "Addons" : addons
@@ -70,10 +70,11 @@ class OrderProvider extends GetConnect {
 
 
 
-  Future<bool> changeTable(int oldSerial , int newSerial) async{
+  Future<bool> changeTable(int oldSerial , int newSerial , String computerName) async{
     Map req = {
       "NewSerial" :newSerial,
-      "OldSerial" : oldSerial
+      "OldSerial" : oldSerial,
+      "ComputerName"  : computerName
     };
     final response = await put('${localStorage.getApiUrl()}order/table' , req);
     if (response.status.hasError) {
@@ -111,7 +112,6 @@ class OrderProvider extends GetConnect {
       "CustomerSerial" : customerSerial
     };
 
-    print(req);
     final response = await put('${localStorage.getApiUrl()}order/customer' , req);
     if (response.status.hasError) {
       return Future.error(response.statusText.toString());
@@ -124,8 +124,6 @@ class OrderProvider extends GetConnect {
       "HeadSerial" :headSerial,
       "WaiterCode" : waiterCode
     };
-
-    print(req);
     final response = await put('${localStorage.getApiUrl()}order/waiter' , req);
     if (response.status.hasError) {
       return Future.error(response.statusText.toString());

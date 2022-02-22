@@ -1,5 +1,6 @@
 import 'package:client_v3/app/data/models/table/table_model.dart';
 import 'package:client_v3/app/modules/order/helpers/action.dart';
+import 'package:client_v3/app/modules/order/helpers/items.dart';
 import 'package:client_v3/app/modules/order/helpers/tables_form.dart';
 import 'package:client_v3/app/modules/order/helpers/transfer_widgets.dart';
 import 'package:client_v3/app/modules/order/helpers/updateActions.dart';
@@ -8,6 +9,7 @@ import 'package:get/get.dart';
 
 class Split extends UpdateActions with TransferWidgets implements ActionInterface {
   Rx<int> currentStep = 0.obs;
+  ItemsUtil itemsUtil = ItemsUtil.instance;
  
   @override
   String actionTitle = "split_cheq".tr;
@@ -56,6 +58,7 @@ class Split extends UpdateActions with TransferWidgets implements ActionInterfac
           print(transferedOrderItems);
           transferIetmsLoading.value = false;
           insertLoading.value = false;
+          itemsUtil.listOrderItems();
 
      if(orderItems.length == 1) {
        reset(context);

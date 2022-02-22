@@ -43,7 +43,7 @@ class TablesForm extends UpdateActions{
     List<DropdownMenuItem<TableModel>> list = [];
     for (var i = 0; i < tables.length; i++) {
       list.add(DropdownMenuItem<TableModel>(
-          child: Text(tables[i].tableName), value: tables[i]));
+          child: tables[i].state == 'Free' ?  Text('${tables[i].tableName}') : Container( width: double.infinity,decoration: BoxDecoration(color: Colors.red ) , child :Text('${tables[i].tableName}' , style: TextStyle(color: Colors.white), )), value: tables[i]));
     }
     return list;
   }
@@ -88,6 +88,10 @@ class TablesForm extends UpdateActions{
                     isExpanded: true,
                     items: tablesDropDown(),
                     onChanged: (TableModel? table) {
+                      if(table!.state != 'Free') {
+                        Get.snackbar("error".tr, "choose_table_err".tr);
+                        return ;
+                      }
                       tableLoading.value = true;
                       selectedTable = table;
                       tableLoading.value = false;

@@ -10,6 +10,7 @@ class LocalStorage {
   LocalStorage._internal();
   Future init() async {
     prefs = await SharedPreferences.getInstance();
+
     if(prefs.getString("ip") != null) ip = prefs.getString("ip");
     if(prefs.getString("port") != null) port = prefs.getString("port");
     if(prefs.getString("logoPath") != null) logoPath = prefs.getString("logoPath");

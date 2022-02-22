@@ -1,4 +1,5 @@
 import 'package:client_v3/app/data/models/order/order_provider.dart';
+import 'package:client_v3/app/modules/order/helpers/items.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
@@ -120,7 +121,8 @@ class Addons {
       addonStr += " - ${item}";
     }
     addonStr = addonStr.substring(1);
-    provider.applyAddons(itemSerial , addonStr);
+      
+    provider.applyAddons(itemSerial , addonStr).then((value) => ItemsUtil.instance.listOrderItems());
     reset(context);
   }
 

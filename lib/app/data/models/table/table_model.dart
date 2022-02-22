@@ -19,6 +19,7 @@ class TableModel {
   late int discountPercent;
   late double discountValue;
   late double totalCash;
+  late String computerName;
 
   TableModel({
     required this.tableNo,
@@ -28,6 +29,7 @@ class TableModel {
     required this.openDate,
     required this.bonNo,
     required this.orderNo,
+    required this.computerName,
   });
 
   TableModel.fromJson(Map<String, dynamic> json) {
@@ -47,6 +49,7 @@ class TableModel {
     guests = json['Guests'];
     waiterCode = json['WaiterCode'];
     customerSerial = json['CustomerSerial'];
+    computerName = json['ComputerName'];
     subtotal = json['Subtotal'] is int  ? json['Subtotal'].toDouble() : json['Subtotal'];
     discountPercent = json['DiscountPercent'];
     discountValue = json['DiscountValue'] is int  ? json['DiscountValue'].toDouble() : json['DiscountValue'];
@@ -61,7 +64,8 @@ class TableModel {
       tableNo: 0,
       openDate: "",
       bonNo: 0,
-      orderNo: 0
+      orderNo: 0,
+      computerName : ""
     );
   }
 }

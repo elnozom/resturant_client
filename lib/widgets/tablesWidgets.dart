@@ -88,6 +88,7 @@ class TablesWidgets {
                 
                 Text(table.tableName, style: TextStyle(color : Colors.white, fontSize: 20 , fontWeight: FontWeight.bold),),
                 if(table.state == 'Free') Center(child: Text(table.status.tr , style: TextStyle(color : Colors.white,))),
+                if(table.computerName != '') Center(child: Text(table.computerName , style: TextStyle(color : Colors.white,))),
                 if(table.state == 'Working')  Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [Text("${table.totalCash.toStringAsFixed(2)} EGP" , style: TextStyle(color : Colors.white, fontSize: 10),),
@@ -116,6 +117,7 @@ class TablesWidgets {
           child: tableWidget(table, context)));
     });
     return GridView.count(
+      childAspectRatio: .9,
       crossAxisCount: MediaQuery.of(context).size.width > 960 ? 8 : 3,
       crossAxisSpacing: 1.0,
       mainAxisSpacing: 1.0,

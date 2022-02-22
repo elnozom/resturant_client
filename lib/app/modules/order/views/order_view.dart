@@ -67,7 +67,6 @@ class OrderView extends GetView<OrderController> {
                                   onTap: () {
                                     controller.tableProvider.tablesCloseOrder(
                                         controller.config.serial , controller.config.headSerial).then((value) {
-                                          print(value) ;
                                           Get.offAllNamed("/home");
                                         }).catchError((err) {
                                           print(err);
@@ -89,15 +88,14 @@ class OrderView extends GetView<OrderController> {
                              
                               GestureDetector(
                                   onTap: () {
-                                    if(controller.orderItems == null){
+                                    if(controller.itemsC.orderItems.length == 0){
                                       Get.snackbar("error".tr, "choose_item".tr);
                                       return ;
                                     }
-                                    List<Item> items = controller.orderItems!.value;
+                                    List<Item> items = controller.itemsC.orderItems;
                                     items.removeWhere((i) => i.itemPrice == 0);
-                                    int lastId = items[items.length - 1].orderItemSerial;
-                                 
-                                   controller.addons.setItemSerial(context, lastId);
+                                    int lstSerial = items[items.length - 1].orderItemSerial;
+                                   controller.addons.setItemSerial(context, lstSerial);
                                    controller.reloadItems = true;
                                   },
                                   child: Column(
@@ -155,9 +153,9 @@ class OrderView extends GetView<OrderController> {
                                   Container(
                                     child: Expanded(
                                       child: Obx(() =>
-                                          controller.itemsLoading.value
+                                          controller.itemsC.itemsLoading.value
                                               ? LoadingWidget()
-                                              : controller.widgets
+                                              : controller.itemsC
                                                   .itemsGrid(context)),
                                     ),
                                   ),
@@ -183,15 +181,8 @@ class OrderView extends GetView<OrderController> {
                             child: Container(
                                 height: double.infinity,
                                 color: Colors.grey.shade100,
-                                child: Obx(() {
-                                  if (controller.orderItemsLoading.value)
-                                    return LoadingWidget();
-                                  if (controller.orderItems == null ||
-                                      controller.orderItems!.value.length == 0)
-                                    return Center(child: Text("no_items".tr));
-                                  return controller.widgets
-                                      .orderItemsAndTotalsSide(context);
-                                }))),
+                                child: controller.widgets
+                                      .orderItemsAndTotalsSide(context))),
                     ]),
                   ),
                   bottomNavigationBar: controller.widgets.mainGroupsListAtBottom()),

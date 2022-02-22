@@ -1,10 +1,9 @@
 
 import 'package:client_v3/app/data/models/order/order_provider.dart';
-import 'package:client_v3/app/data/models/table/table_group_model.dart';
+
 import 'package:client_v3/app/data/models/table/table_model.dart';
 import 'package:client_v3/app/modules/order/helpers/action.dart';
 import 'package:client_v3/app/modules/order/helpers/tables_form.dart';
-import 'package:client_v3/app/widgets/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -46,7 +45,7 @@ class ChangeTable  extends TablesForm implements ActionInterface{
       err.value = false;
 
 
-    orderProvider.changeTable(config.serial, selectedTable!.serial)
+    orderProvider.changeTable(config.serial, selectedTable!.serial  , config.computerName)
         .then((value) {
       config.serial = selectedTable!.serial;
       reset(context);

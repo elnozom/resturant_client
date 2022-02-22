@@ -1,8 +1,5 @@
-import 'dart:convert';
-
 import 'package:device_information/device_information.dart';
 import 'package:get/get.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:client_v3/app/data/models/table/open_order_resp_model.dart';
 import 'package:client_v3/app/data/models/table/table_group_model.dart';
 import 'package:client_v3/app/data/models/table/table_model.dart';
@@ -48,18 +45,19 @@ class TableProvider extends GetConnect {
   }
 
 
-  Future<TableOpenOrderResp> tablesOpenOrder(int serial , int empCode) async {
+  Future<TableOpenOrderResp> tablesOpenOrder(int serial , int empCode , int headSerial) async {
     String imei = await DeviceInformation.deviceIMEINumber;
     Map request = {
       "Serial" : serial,
       "Imei" : imei,
       "EmpCode" : empCode,
+      "HeadSerial" : headSerial,
     };
     final response = await put('${localStorage.getApiUrl()}tables/open' , request);
-     if (response.status.hasError) {
+    if (response.status.hasError) {
       return Future.error(response.statusText.toString());
     } else {
-        TableOpenOrderResp resp = TableOpenOrderResp.fromJson(response.body);
+      TableOpenOrderResp resp = TableOpenOrderResp.fromJson(response.body);
       return resp;
     }
   }
@@ -74,8 +72,6 @@ class TableProvider extends GetConnect {
     };
     final response = await put('${localStorage.getApiUrl()}tables/close' , request);
      if (response.status.hasError) {
-       print(response.body);
-       print(response);
       return Future.error(response.statusText.toString());
     } else {
       return response.body;
