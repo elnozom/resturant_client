@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+// import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:get/get.dart';
 import '../controllers/home_controller.dart';
 
@@ -8,7 +9,6 @@ class HomeView extends GetView<HomeController> {
     return Scaffold(
       body: GestureDetector(
         onTap: () {
-          // Get.offAllNamed('/tables');
           controller.authorizeDevice();
         },
         child: Container(
@@ -24,7 +24,7 @@ class HomeView extends GetView<HomeController> {
               children: [
                 GestureDetector(
                   onLongPress: () => Get.toNamed("/settings"),
-                                  child: Padding(
+                  child: Padding(
                     padding: EdgeInsets.only(left: 30),
                     child: Image(
                       image: AssetImage("assets/images/logo.png"),
@@ -37,20 +37,26 @@ class HomeView extends GetView<HomeController> {
                     width: double.infinity,
                     padding: EdgeInsets.all(10),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        GestureDetector(
-                  onLongPress: () => Get.toNamed("/settings"),
-                                  child: Image(
-                            image: AssetImage("assets/images/icon.png"),
-                            width: 50,
+                        Obx(() => controller.notification.notificationWidget(context , controller.cartCount.value) ),
+
+                        
+                        Flexible(
+                          child: Text(
+                            "touch_any_where".tr,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontFamily: "En",
+                                fontSize: 18),
                           ),
                         ),
-                        SizedBox(width: 10,),
-                        Flexible(
-                                                  child: Text(
-                            "touch_any_where".tr,textAlign: TextAlign.center,
-                            style: TextStyle(color: Colors.white , fontFamily: "En" ,fontSize: 18),
+                        GestureDetector(
+                          onLongPress: () => Get.toNamed("/settings"),
+                          child: Image(
+                            image: AssetImage("assets/images/icon.png"),
+                            width: 50,
                           ),
                         ),
                       ],

@@ -11,7 +11,7 @@ class Transfer extends TablesForm with TransferWidgets implements ActionInterfac
  
   // ItemsUtil itemsUtil = ItemsUtil.instance;
 
-  Transfer(TableModel config) : super(config); 
+  Transfer(TableModel config , int empCode) : super(config , empCode); 
   List<Step> stepList(context) => [
         Step(
             title: Text('choose_table'),

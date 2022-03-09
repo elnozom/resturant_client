@@ -21,8 +21,8 @@ class OrderWidgets extends GetView<OrderController> {
 
   // final OrderController controller = Get.put(OrderController());
   //items section
-  late Transfer transferClass = Get.put(Transfer(controller.config));
-  late ChangeTable chgTableClass = Get.put(ChangeTable(controller.config));
+  late Transfer transferClass = Get.put(Transfer(controller.config ,  controller.emp.empCode));
+  late ChangeTable chgTableClass = Get.put(ChangeTable(controller.config , controller.emp.empCode));
   late ChangeCustomer chgCustomerleClass =
       Get.put(ChangeCustomer(controller.config));
   late ChangeWaiter chgWaiterClass = Get.put(ChangeWaiter(controller.config));

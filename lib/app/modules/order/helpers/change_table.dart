@@ -13,7 +13,7 @@ class ChangeTable  extends TablesForm implements ActionInterface{
 
   @override
   String actionTitle = "change_table".tr;
-  ChangeTable(TableModel config) : super(config);
+  ChangeTable(TableModel config ,int empCode) : super(config , empCode);
   void reset(context) {
     err.value = false;
     selectedTable = null;

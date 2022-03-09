@@ -1,3 +1,4 @@
+import 'package:client_v3/app/data/models/notification_model.dart';
 import 'package:device_information/device_information.dart';
 import 'package:get/get.dart';
 import 'package:client_v3/app/data/models/table/open_order_resp_model.dart';
@@ -25,6 +26,45 @@ class TableProvider extends GetConnect {
         groups.add(group);
       });
       return groups;
+    }
+  }
+
+  Future<bool> repondCalls(String carts , int code) async {
+    Map request = {
+      "Serials" : carts,
+      "WaiterCode" : code
+    };
+    final response = await put('${localStorage.getApiUrl()}cart/call/respond' , request);
+     if (response.status.hasError) {
+      return Future.error(response.statusText.toString());
+    } else {
+      return response.body;
+    }
+  }
+  Future<int> getNotificationsCount(String url) async {
+    // String imei = await DeviceInformation.deviceIMEINumber;
+    final response = await get(url);
+     if (response.status.hasError) {
+      return Future.error(response.statusText.toString());
+    } else {
+      print('repsonse');
+      print(response.body);
+      return response.body;
+    }
+  }
+
+  Future<List<NotificationModel>> getNotifications() async {
+    String imei = await DeviceInformation.deviceIMEINumber;
+    final response = await get("${localStorage.getApiUrl()}cart/call/${imei}/list");
+     if (response.status.hasError) {
+      return Future.error(response.statusText.toString());
+    } else {
+      List<NotificationModel> notifications = [];
+      if(response.body != null) response.body.forEach((item){
+        NotificationModel group = NotificationModel.fromJson(item);
+        notifications.add(group);
+      });
+      return notifications;
     }
   }
 

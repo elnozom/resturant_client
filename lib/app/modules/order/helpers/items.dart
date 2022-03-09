@@ -182,9 +182,8 @@ class ItemsUtil {
         fullscreenDialog: true));
   }
 
-  void deleteItem(Item item  ,BuildContext context) {
-    print("hiiii");
-    orderProvider.deleteOrderItem(item.orderItemSerial).then((value) {
+  void deleteItem(Item item  ,BuildContext context ) {
+    orderProvider.deleteOrderItem(item.orderItemSerial , emp!.empCode).then((value) {
       // orderItems.remove(item);
       totals.remove(item.itemPrice);
       listOrderItems().then((value) {

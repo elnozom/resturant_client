@@ -1,18 +1,81 @@
-import 'package:client_v3/LocaleString.dart';
-import 'package:client_v3/app/modules/order/helpers/items.dart';
-import 'package:client_v3/app/modules/order/helpers/localStorage.dart';
-import 'package:flutter/material.dart';
+import 'dart:async';
 
+import 'package:client_v3/LocaleString.dart';
+import 'package:client_v3/app/modules/order/helpers/localStorage.dart';
+import 'package:client_v3/app/modules/order/helpers/notification.dart';
+import 'package:device_information/device_information.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-
+import 'package:just_audio/just_audio.dart';
 import 'app/routes/app_pages.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+final LocalStorage localStorage = LocalStorage.instance;
+final service = FlutterBackgroundService();
 
+Future<void> initializeService() async {
+  await service.configure(
+    androidConfiguration: AndroidConfiguration(
+      // this will executed when app is in foreground or background in separated isolate
+      onStart: onStart,
+
+      // auto start service
+      autoStart: false,
+      isForegroundMode: true,
+    ),
+     iosConfiguration: IosConfiguration(
+      // auto start service
+      autoStart: false,
+
+      // this will executed when app is in foreground in separated isolate
+      onForeground: onStart,
+
+      // you have to enable background fetch capability on xcode project
+      onBackground: onIosBackground,
+    ),
+  );
+}
+void onIosBackground() {
+  WidgetsFlutterBinding.ensureInitialized();
+  print('FLUTTER BACKGROUND FETCH');
+}
+
+void onStart() async {
+  AudioPlayer player = AudioPlayer();
+   WidgetsFlutterBinding.ensureInitialized();
+  final notification = Notify.instance;
+  Timer.periodic(const Duration(seconds: 10), (timer) async {
+    if (!(await service.isServiceRunning())) timer.cancel();
+    service.setNotificationInfo(
+      title: "My App Service",
+      content: "Updated at ${DateTime.now()}",
+    );
+    notification.checkForNewCalls().then((res) {
+      print('main');
+      print(res);
+      service.sendData(
+      {
+        "count": res,
+      },
+    );
+    });
+  });
+  
+}
 void main() async {
   await dotenv.load(fileName: ".env");
-  final LocalStorage localStorage = LocalStorage.instance;
-  await  localStorage.init();
   
+  await  localStorage.init();
+    String imei = await DeviceInformation.deviceIMEINumber;
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString("imei", imei);
+ 
+   WidgetsFlutterBinding.ensureInitialized();
+
+  
+
   runApp(
     GetMaterialApp(
       debugShowCheckedModeBanner: false,
@@ -29,11 +92,19 @@ void main() async {
           bodyText1: TextStyle(fontSize: 14.0,color: Colors.black),
         ),
       ),
+      onInit: ()  async {
+        await initializeService();
+        service.start();
+      },
+      onDispose: () async {
+         service.stopBackgroundService();
+      },
       locale: Locale('ar', 'AE'),
       translations: LocaleString(),
       title: "Rms",
       initialRoute: AppPages.INITIAL,
       getPages: AppPages.routes,
+      
     ),
   );
 }

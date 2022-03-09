@@ -4,10 +4,12 @@ import 'package:client_v3/app/data/models/auth/emp_model.dart';
 import 'package:client_v3/app/data/models/customer/customer_provider.dart';
 import 'package:client_v3/app/modules/order/helpers/action.dart';
 import 'package:client_v3/app/modules/order/helpers/items.dart';
+import 'package:client_v3/app/modules/order/helpers/notification.dart';
 import 'package:client_v3/app/modules/order/helpers/toatls.dart';
 import 'package:client_v3/app/modules/printing/printing.dart';
 import 'package:client_v3/app/modules/singletons/addons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:get/get.dart';
 import 'package:client_v3/app/data/models/group/group_model.dart';
 import 'package:client_v3/app/data/models/group/group_provider.dart';
@@ -17,16 +19,19 @@ import 'package:client_v3/app/data/models/item/item_provider.dart';
 import 'package:client_v3/app/data/models/order/order_provider.dart';
 import 'package:client_v3/app/data/models/table/table_model.dart';
 import 'package:client_v3/app/data/models/table/table_provider.dart';
-import 'package:client_v3/app/widgets/loading.dart';
 import 'package:client_v3/widgets/orderWidgets.dart';
 
 class OrderController extends GetxController {
+  Rx<int> cartCount = 0.obs;
   final GroupProvider groupProvider = Get.put(GroupProvider());
   final ItemProvider itemProvider = Get.put(ItemProvider());
   final TableProvider tableProvider = Get.put(TableProvider());
   final OrderWidgets widgets = Get.put(OrderWidgets());
   final OrderProvider orderProvider = Get.put(OrderProvider());
   final CustomerProvider customerProvider = Get.put(CustomerProvider());
+
+  final notification = Notify.instance;
+
   // final Transfer transferClass = Get.put(Transfer());
   bool reloadItems = false;
   Rx<bool> hasDiscount = false.obs;
@@ -168,9 +173,15 @@ class OrderController extends GetxController {
 
   @override
   void onReady() {
+    cartCount.value = Notify.instance.countItems();
+
     super.onReady();
     hasDiscount.value = config.discountPercent > 0;
     totals.init(config.subtotal , config.discountPercent);
+    FlutterBackgroundService().onDataReceived.listen((event) {
+      cartCount.value = event!['count'];
+      print(cartCount.value);  
+    });
     itemsC.reset();
   }
 

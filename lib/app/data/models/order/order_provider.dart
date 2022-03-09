@@ -59,9 +59,9 @@ class OrderProvider extends GetConnect {
     return response.body;
   }
 
-  Future<bool> deleteOrderItem(int serial) async {
+  Future<bool> deleteOrderItem(int serial , int emp) async {
     final response =
-        await delete('${localStorage.getApiUrl()}order/item/${serial}');
+        await delete('${localStorage.getApiUrl()}order/item/${serial}?EmpCode=${emp}');
     if (response.status.hasError) {
       return Future.error(response.statusText.toString());
     }

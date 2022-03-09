@@ -1,8 +1,10 @@
+import 'package:device_information/device_information.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 class LocalStorage {
   String ip = "";
   String port = "";
   String logoPath = "";
+  String imei = "";
 
   var prefs ;
   static LocalStorage? _instance ;
@@ -10,15 +12,20 @@ class LocalStorage {
   LocalStorage._internal();
   Future init() async {
     prefs = await SharedPreferences.getInstance();
-
     if(prefs.getString("ip") != null) ip = prefs.getString("ip");
     if(prefs.getString("port") != null) port = prefs.getString("port");
     if(prefs.getString("logoPath") != null) logoPath = prefs.getString("logoPath");
+    if(prefs.getString("imei") != null) imei = prefs.getString("imei");
   }
 
   void setIp(String i){
     ip = i;
     prefs.setString("ip" , i);
+  }
+
+  void setImei(String i){
+    imei = i;
+    prefs.setString("imei" , i);
   }
   void setPort(String p){
     port = p;

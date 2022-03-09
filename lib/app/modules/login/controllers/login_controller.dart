@@ -1,3 +1,4 @@
+import 'package:client_v3/app/modules/order/helpers/notification.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
@@ -87,6 +88,7 @@ class LoginController extends GetxController with SingleGetTickerProviderMixin {
 
   }
   void goToTables(){
+    Notify.instance.empCode = emp!.value.empCode;
     Get.offNamed('/tables', arguments: emp!.value);
   }
   void keyPadLeftIconEntered() {
@@ -145,7 +147,10 @@ class LoginController extends GetxController with SingleGetTickerProviderMixin {
                 ? widgets.buildPasswordForm(context, login, newCode)
                 : widgets.buildEmpCodeForm(context, empGetByCode)),
             ElevatedButton(
-                onPressed: () => toggleTabs(0), child: Text('login_by_qr'.tr , style: TextStyle(fontSize: 22)))
+                onPressed: () => toggleTabs(0), child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text('login_by_qr'.tr , style: TextStyle(fontSize: 20)),
+                ))
           ],
         )));
   }

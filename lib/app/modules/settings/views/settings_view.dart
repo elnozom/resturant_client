@@ -1,10 +1,6 @@
-import 'package:blue_thermal_printer/blue_thermal_printer.dart';
 import 'package:client_v3/app/widgets/loading.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:get/get.dart';
-
 import '../controllers/settings_controller.dart';
 
 class SettingsView extends GetView<SettingsController> {

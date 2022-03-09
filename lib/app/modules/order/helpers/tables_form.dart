@@ -15,14 +15,16 @@ class TablesForm extends UpdateActions{
   Rx<bool> tableLoading = true.obs;
   Rx<bool> groupLoading = true.obs;
   Rx<bool> err = false.obs;
+  int empCode = 0;
 
 
-  TablesForm(TableModel config) : super(config) {
+  TablesForm(TableModel config , int emp) : super(config) {
+    empCode = emp;
     getTablesGroups();
   }
   Future getTablesGroups() async {
     groupLoading.value = true;
-    tableProvider.groupTablesList(config.waiterCode).then((value) {
+    tableProvider.groupTablesList(empCode).then((value) {
       tableGroups = value;
       selectedTableGroup = tableGroups.first;
       getTables(tableGroups.first.groupTableNo);

@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:client_v3/app/modules/order/helpers/localStorage.dart';
 import 'package:client_v3/app/modules/printing/printing.dart';
 import 'package:flutter/widgets.dart';

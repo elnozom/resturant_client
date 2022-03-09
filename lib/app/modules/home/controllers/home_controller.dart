@@ -1,10 +1,17 @@
 
+import 'dart:async';
+
+import 'package:client_v3/app/modules/order/helpers/notification.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
+// import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:get/get.dart';
 import 'package:client_v3/app/data/models/auth/auth_provider.dart';
 
 
 class HomeController extends GetxController {
-  
+  final notification = Notify.instance;
+  Rx<int> cartCount = 0.obs;
+  // Timer? timer;
   void authorizeDevice() async{
     AuthProvider().checkDeviceAuthorization().then((value) {
        print(value);
@@ -33,10 +40,21 @@ class HomeController extends GetxController {
   @override
   void onReady() {
     super.onReady();
-    // TableProvider().tablesCloseOrder(0);
+    cartCount.value = Notify.instance.countItems();
+    FlutterBackgroundService().onDataReceived.listen((event) {
+      print("tablcontroller");
+      print(event);
+      cartCount.value = event!['count'];
+    });
+
   }
 
   @override
-  void onClose() {}
+  void onClose() {
+    // FlutterBackgroundService().sendData({"action": "stopService"});
+
+        // timer?.cancel();
+
+  }
 
 }

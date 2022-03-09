@@ -99,7 +99,7 @@ class ApplyDiscount extends UpdateActions implements ActionInterface {
       return;
     }
     Map req = {
-      "HeadSerial": config.serial,
+      "HeadSerial": config.headSerial,
       "Comment": discountCommentInput.text,
       "DiscCode": selectedDiscount!.discCode,
       "DiscValue": selectedDiscount!.discValue

@@ -15,6 +15,7 @@ class OrderView extends GetView<OrderController> {
           : WillPopScope(
               onWillPop: () async => false,
               child: Scaffold(
+                  floatingActionButton: Obx(()=> FloatingActionButton(child: controller.notification.notificationWidget(context , controller.cartCount.value),onPressed: (){},)),
                   appBar: AppBar(
                     centerTitle: true,
                     iconTheme: IconThemeData(color: Colors.white),
