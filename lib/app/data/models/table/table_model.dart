@@ -19,6 +19,8 @@ class TableModel {
   late int discountPercent;
   late double discountValue;
   late double totalCash;
+  late bool useTax;
+  late double minimumBon;
   late String computerName;
 
   TableModel({
@@ -29,6 +31,8 @@ class TableModel {
     required this.openDate,
     required this.bonNo,
     required this.orderNo,
+    required this.useTax,
+    required this.minimumBon,
     required this.computerName,
   });
 
@@ -50,7 +54,9 @@ class TableModel {
     waiterCode = json['WaiterCode'];
     customerSerial = json['CustomerSerial'];
     computerName = json['ComputerName'];
+    useTax = json['UseTax'];
     subtotal = json['Subtotal'] is int  ? json['Subtotal'].toDouble() : json['Subtotal'];
+    minimumBon = json['MinimumBon'] is int  ? json['MinimumBon'].toDouble() : json['MinimumBon'];
     discountPercent = json['DiscountPercent'];
     discountValue = json['DiscountValue'] is int  ? json['DiscountValue'].toDouble() : json['DiscountValue'];
     totalCash = json['TotalCash'] is int ? json['TotalCash'].toDouble() : json['TotalCash'];
@@ -65,6 +71,8 @@ class TableModel {
       openDate: "",
       bonNo: 0,
       orderNo: 0,
+      useTax: false,
+      minimumBon: 0.0,
       computerName : ""
     );
   }

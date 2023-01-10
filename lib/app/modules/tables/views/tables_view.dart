@@ -20,7 +20,7 @@ class TablesView extends GetView<TablesController> {
             title: Obx(() => controller.groupLoading.value
                 ? LoadingWidget()
                 : controller.widgets.tabsGroups(controller.groups,
-                    controller.getTables, controller.activeGroup))),
+                    controller.getTables, controller.activeGroup!.groupTableNo))),
         body: Container(
             padding: EdgeInsets.all(10),
             color: Colors.white,

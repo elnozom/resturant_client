@@ -7,7 +7,8 @@ import '../controllers/order_controller.dart';
 class OrderView extends GetView<OrderController> {
   @override
   Widget build(BuildContext context) {
-    bool isMobile = MediaQuery.of(context).size.width < 960;
+    bool isMobile = MediaQuery.of(context).size.width < 560;
+    bool showActions = MediaQuery.of(context).size.height < 300;
     return Center(
         child: Obx(
       () => controller.loading.value
@@ -15,11 +16,10 @@ class OrderView extends GetView<OrderController> {
           : WillPopScope(
               onWillPop: () async => false,
               child: Scaffold(
-                  floatingActionButton: Obx(()=> FloatingActionButton(child: controller.notification.notificationWidget(context , controller.cartCount.value),onPressed: (){},)),
                   appBar: AppBar(
                     centerTitle: true,
                     iconTheme: IconThemeData(color: Colors.white),
-                    automaticallyImplyLeading: isMobile,
+                    automaticallyImplyLeading: !showActions,
                     title: Padding(
                       padding: const EdgeInsets.all(10),
                       child: Row(
@@ -118,7 +118,7 @@ class OrderView extends GetView<OrderController> {
                     backgroundColor: Theme.of(context).primaryColor,
                     toolbarHeight: 75.0,
                   ),
-                  drawer: isMobile
+                  drawer: !showActions
                       ? SizedBox(
                           width: 100,
                           child: Drawer(
@@ -132,7 +132,7 @@ class OrderView extends GetView<OrderController> {
                       : null,
                   body: Container(
                     child: Row(children: [
-                      if (!isMobile)
+                      if (showActions)
                         SizedBox(
                           width: 80,
                           child: controller.widgets
@@ -161,10 +161,10 @@ class OrderView extends GetView<OrderController> {
                                     ),
                                   ),
                                   SizedBox(
-                                    width: 10,
+                                    width: 0,
                                   ),
                                   SizedBox(
-                                      width: 125,
+                                      width: 110,
                                       child: Container(
                                           child: Obx(() =>
                                               controller.subGroupsLoading.value
@@ -186,7 +186,8 @@ class OrderView extends GetView<OrderController> {
                                       .orderItemsAndTotalsSide(context))),
                     ]),
                   ),
-                  bottomNavigationBar: controller.widgets.mainGroupsListAtBottom()),
+                  bottomNavigationBar: controller.widgets.mainGroupsListAtBottom()
+                  ),
             ),
     ));
   }

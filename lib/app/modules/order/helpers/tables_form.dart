@@ -16,10 +16,11 @@ class TablesForm extends UpdateActions{
   Rx<bool> groupLoading = true.obs;
   Rx<bool> err = false.obs;
   int empCode = 0;
+  late final bool isTransfer ;
 
-
-  TablesForm(TableModel config , int emp) : super(config) {
+  TablesForm(TableModel config , int emp , bool tr) : super(config) {
     empCode = emp;
+    isTransfer = tr;
     getTablesGroups();
   }
   Future getTablesGroups() async {
@@ -90,7 +91,8 @@ class TablesForm extends UpdateActions{
                     isExpanded: true,
                     items: tablesDropDown(),
                     onChanged: (TableModel? table) {
-                      if(table!.state != 'Free') {
+                      print(this.isTransfer);
+                      if(table!.state != 'Free' && !this.isTransfer) {
                         Get.snackbar("error".tr, "choose_table_err".tr);
                         return ;
                       }

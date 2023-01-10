@@ -113,7 +113,7 @@ class ChangeWaiter extends UpdateActions implements ActionInterface {
       return;
     }
     orderProvider
-        .changeWaiter(config.serial, selectedWaiter!.empCode)
+        .changeWaiter(config.headSerial, selectedWaiter!.empCode)
         .then((value) {
       reset(context);
     });

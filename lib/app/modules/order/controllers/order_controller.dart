@@ -35,7 +35,7 @@ class OrderController extends GetxController {
   // final Transfer transferClass = Get.put(Transfer());
   bool reloadItems = false;
   Rx<bool> hasDiscount = false.obs;
- 
+
   List<GroupModel?> mainGroups = [];
 
   Rx<bool> loading = true.obs;
@@ -73,18 +73,16 @@ class OrderController extends GetxController {
     });
   }
 
- 
-  
   void openUpdateModal(ActionInterface action, context) {
-    if(action.actionTitle == "change_table".tr){
-      if(config.subtotal == 0) {
+    if (action.actionTitle == "change_table".tr) {
+      if (config.subtotal == 0) {
         Get.snackbar("error".tr, "not_allowed_before_send".tr);
-        return ;
+        return;
       }
     }
-    if(emp.secLevel < 2 && action.actionTitle != "change_table".tr){
+    if (emp.secLevel < 2 && action.actionTitle != "change_table".tr) {
       Get.snackbar("error".tr, "not_allowed".tr);
-      return ;
+      return;
     }
     reloadItems = true;
     Navigator.of(context).push(new MaterialPageRoute<Null>(
@@ -122,7 +120,7 @@ class OrderController extends GetxController {
 
   void listItems() {
     itemsLoading.value = true;
-    itemProvider.listItemsByGroup(activeSubGroup! , config.serial).then((value) {
+    itemProvider.listItemsByGroup(activeSubGroup!, config.serial).then((value) {
       items = value.obs;
       itemsLoading.value = false;
       loading.value = false;
@@ -142,10 +140,10 @@ class OrderController extends GetxController {
     });
   }
 
-
-
-
   void openItems(context) {
+    print("config.minimumBon");
+    print(config.minimumBon);
+   
     Get.bottomSheet(widgets.orderItemsAndTotalsSide(context),
         elevation: 20.0,
         enableDrag: false,
@@ -157,10 +155,10 @@ class OrderController extends GetxController {
         )));
   }
 
-  
   void printReceipt() {
-    if(emp.secLevel == 1 && config.printTimes > 0){
+    if (emp.secLevel == 1 && config.printTimes > 0) {
       Get.snackbar("error".tr, "print_not_allowed".tr);
+      return;
     }
     printing.setHeadSerial(config.headSerial);
   }
@@ -168,25 +166,29 @@ class OrderController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    totals.init(
+        val: config.subtotal,
+        percent: config.discountPercent,
+        guestCount: config.guests,
+        hasMinimum: config.minimumBon > 0,
+        hasTax: config.useTax);
     listMainGroups();
-  }
+    hasDiscount.value = config.discountPercent > 0;
+    
+    }
 
   @override
   void onReady() {
     cartCount.value = Notify.instance.countItems();
-
     super.onReady();
-    hasDiscount.value = config.discountPercent > 0;
-    totals.init(config.subtotal , config.discountPercent);
     FlutterBackgroundService().onDataReceived.listen((event) {
       cartCount.value = event!['count'];
-      print(cartCount.value);  
     });
     itemsC.reset();
   }
 
   @override
   void onClose() {
-    tableProvider.tablesCloseOrder(config.serial , config.headSerial);
+    tableProvider.tablesCloseOrder(config.serial, config.headSerial);
   }
 }

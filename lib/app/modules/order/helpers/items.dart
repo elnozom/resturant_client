@@ -61,7 +61,7 @@ class ItemsUtil {
     table = t;
     await _listItems();
     await listOrderItems();
-    totals.init(table!.subtotal, table!.discountPercent);
+    // totals.init(table!.subtotal, table!.discountPercent);
   }
 
   Future createOrder(BuildContext context, Item item) async {
@@ -71,6 +71,7 @@ class ItemsUtil {
         tableSerial: table!.serial,
         imei: imei,
         orderType: 2,
+        guests : table!.guests,
         waiterCode: emp!.empCode);
     orderProvider.createOrder(order).then((value) {
       DateTime now = new DateTime.now();
@@ -90,7 +91,7 @@ class ItemsUtil {
       await createOrder(context, item);
       return;
     }
-    if (emp!.empCode != table!.waiterCode) {
+    if (emp!.empCode != table!.waiterCode && table!.waiterCode != 0) {
       Get.snackbar("error".tr, "not_allowed".tr);
       return;
     }
@@ -310,7 +311,8 @@ class ItemsUtil {
     })));
   }
   Widget itemsGrid(BuildContext context) {
-    bool isMobile = MediaQuery.of(context).size.width > 960;
+    bool isMobile = MediaQuery.of(context).size.width < 560;
+    bool isSmallTablet = MediaQuery.of(context).size.width < 660;
     List<Widget> widgets = [];
     //check that items is empty
     // length will be one because tthe empty item in the first of array used to avoid bug
@@ -326,9 +328,10 @@ class ItemsUtil {
     return Padding(
         padding: const EdgeInsets.all(10.0),
         child: GridView.count(
-            childAspectRatio: isMobile ? .8 : 1,
+            // childAspectRatio: isMobile ? 1 :  .8,
+            childAspectRatio:  1,
             padding: EdgeInsets.all(10),
-            crossAxisCount: isMobile ? 4 : 2,
+            crossAxisCount: isMobile ?  2 : isSmallTablet ? 3 :4,
             crossAxisSpacing: 10.0,
             mainAxisSpacing: 10.0,
             children: widgets));
@@ -341,6 +344,7 @@ class ItemsUtil {
     return GestureDetector(
       onTap: () async {
         isActive.value = true;
+        item.qnt++;
         await addItem(context, item);
       },
       child: SizedBox(

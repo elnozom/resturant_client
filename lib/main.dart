@@ -3,15 +3,16 @@ import 'dart:async';
 import 'package:client_v3/LocaleString.dart';
 import 'package:client_v3/app/modules/order/helpers/localStorage.dart';
 import 'package:client_v3/app/modules/order/helpers/notification.dart';
+import 'package:client_v3/app/modules/order/helpers/options.dart';
 import 'package:device_information/device_information.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:just_audio/just_audio.dart';
 import 'app/routes/app_pages.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 final LocalStorage localStorage = LocalStorage.instance;
 final service = FlutterBackgroundService();
 
@@ -25,7 +26,7 @@ Future<void> initializeService() async {
       autoStart: false,
       isForegroundMode: true,
     ),
-     iosConfiguration: IosConfiguration(
+    iosConfiguration: IosConfiguration(
       // auto start service
       autoStart: false,
 
@@ -37,6 +38,7 @@ Future<void> initializeService() async {
     ),
   );
 }
+
 void onIosBackground() {
   WidgetsFlutterBinding.ensureInitialized();
   print('FLUTTER BACKGROUND FETCH');
@@ -44,7 +46,7 @@ void onIosBackground() {
 
 void onStart() async {
   AudioPlayer player = AudioPlayer();
-   WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
   final notification = Notify.instance;
   Timer.periodic(const Duration(seconds: 10), (timer) async {
     if (!(await service.isServiceRunning())) timer.cancel();
@@ -56,25 +58,21 @@ void onStart() async {
       print('main');
       print(res);
       service.sendData(
-      {
-        "count": res,
-      },
-    );
+        {
+          "count": res,
+        },
+      );
     });
   });
-  
 }
+
 void main() async {
   await dotenv.load(fileName: ".env");
-  
-  await  localStorage.init();
-    String imei = await DeviceInformation.deviceIMEINumber;
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setString("imei", imei);
- 
-   WidgetsFlutterBinding.ensureInitialized();
-
-  
+  await localStorage.init();
+  String imei = await DeviceInformation.deviceIMEINumber;
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  prefs.setString("imei", imei);
+  WidgetsFlutterBinding.ensureInitialized();
 
   runApp(
     GetMaterialApp(
@@ -82,29 +80,32 @@ void main() async {
       theme: ThemeData(
         // Define the default brightness and colors.
         primaryColor: Color(0xff1e90ff),
-        backgroundColor:Color(0xffffffff),
+        backgroundColor: Color(0xffffffff),
         fontFamily: 'Ar',
         dividerColor: Colors.black,
         textTheme: const TextTheme(
-          headline1: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold, color: Colors.black),
-          headline6: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold, color: Colors.black),
-          bodyText2: TextStyle(fontSize: 12.0,color: Colors.black),
-          bodyText1: TextStyle(fontSize: 14.0,color: Colors.black),
+          headline1: TextStyle(
+              fontSize: 16.0, fontWeight: FontWeight.bold, color: Colors.black),
+          headline6: TextStyle(
+              fontSize: 16.0, fontWeight: FontWeight.bold, color: Colors.black),
+          bodyText2: TextStyle(fontSize: 12.0, color: Colors.black),
+          bodyText1: TextStyle(fontSize: 14.0, color: Colors.black),
         ),
       ),
-      onInit: ()  async {
+      onInit: () async {
+        // init options singleton
+        Options.instance;
         await initializeService();
         service.start();
       },
       onDispose: () async {
-         service.stopBackgroundService();
+        service.stopBackgroundService();
       },
       locale: Locale('ar', 'AE'),
       translations: LocaleString(),
       title: "Rms",
       initialRoute: AppPages.INITIAL,
       getPages: AppPages.routes,
-      
     ),
   );
 }

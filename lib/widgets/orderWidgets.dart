@@ -1,4 +1,5 @@
 import 'package:client_v3/app/data/models/group/subgroup_model.dart';
+import 'package:client_v3/app/data/totals_model.dart';
 import 'package:client_v3/app/modules/order/controllers/order_controller.dart';
 import 'package:client_v3/app/modules/order/helpers/apply_discount.dart';
 import 'package:client_v3/app/modules/order/helpers/change_customer.dart';
@@ -208,33 +209,10 @@ class OrderWidgets extends GetView<OrderController> {
     );
   }
 
-  Scaffold orderItemsAndTotalsSide(BuildContext context) {
-    var totals = controller.totals.getTotals();
-    return Scaffold(
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Column(children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(controller.config.docNo,
-                      style: Theme.of(context).textTheme.headline1),
-                  Text(controller.config.openTime,
-                      style: Theme.of(context).textTheme.headline6)
-                ],
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              tableHeader(),
-              controller.itemsC.orderItemsTableRows(context)
-            ]),
-          ),
-        ),
-        bottomNavigationBar: Obx(() {
-          return Container(
-            height: controller.hasDiscount.value ? 160 : 125,
+
+  Widget totalsWidget(BuildContext context , TotalsModel totals){
+    return Container(
+            height: controller.hasDiscount.value ? 160 : 155,
             padding: EdgeInsets.all(15.0),
             decoration: BoxDecoration(),
             child: Column(
@@ -295,6 +273,19 @@ class OrderWidgets extends GetView<OrderController> {
                       )
                     ],
                   ),
+                 if(totals.minimum.value > 0) Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'minimum'.tr,
+                      style: Theme.of(context).textTheme.headline1,
+                    ),
+                    Text(
+                      totals.minimum.value.toStringAsFixed(2),
+                      style: Theme.of(context).textTheme.headline1,
+                    )
+                  ],
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -311,6 +302,38 @@ class OrderWidgets extends GetView<OrderController> {
               ],
             ),
           );
+  }
+
+  Scaffold orderItemsAndTotalsSide(BuildContext context) {
+    var totals = controller.totals.getTotals();
+    bool smallTab =  MediaQuery.of(context).size.height < 300;
+    return Scaffold(
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: Column(children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(controller.config.docNo,
+                      style: Theme.of(context).textTheme.headline1),
+                  Text(controller.config.openTime,
+                      style: Theme.of(context).textTheme.headline6)
+                ],
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              tableHeader(),
+              controller.itemsC.orderItemsTableRows(context),
+              smallTab ? SizedBox(height: 0,): Obx(() {
+                return totalsWidget(context , totals);
+              })
+            ]),
+          ),
+        ),
+         bottomNavigationBar: !smallTab ? SizedBox(height: 0,): Obx(() {
+          return totalsWidget(context , totals);
         }));
   }
 }

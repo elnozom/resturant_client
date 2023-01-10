@@ -148,13 +148,13 @@ class Printing {
       String captain = "Captain # ${val['Config']['WaiterName']}";
       String guest = "Guest # ${val['Config']['GuestsNo']}";
       String date = val['Config']['DocDate'];
-      String user = "User: ${val['Config']['CustomerName']}";
       String customer = "Cust Name:${val['Config']['CustomerName']}";
       String time = "Time:${val['Config']['DocTime']}";
       String table = "Table : ${val['Config']['TableNO']} - ${val['Config']['GroupTableName']}";
       String subtotal = "Subtotal: ${val['Config']['SubTotal'].toStringAsFixed(2)} L.E";
       String tax = "Tax(${val['Config']['TaxPercent']}%) :${val['Config']['SaleTax'].toStringAsFixed(2)} L.E";
       String disc = "Disc(${val['Config']['DiscountPercent']}%) :${val['Config']['DiscountValue'].toStringAsFixed(2)} L.E";
+      String minimum = "Minimum :${val['Config']['AppliedMinimum'].toStringAsFixed(2)} L.E";
       String total = "Grand Total ${val['Config']['Total'].toStringAsFixed(2)} L.E";
       String foot = "عميلنا العزيز يسعدنا تشريفكم";
       String pwrd ="powered by El Nozom F&B - www.elnozom.com";
@@ -187,6 +187,10 @@ class Printing {
       }
       _printLeft(subtotal);
       _newLine();
+      if (val['Config']['AppliedMinimum'] > 0) {
+        _printLeft(minimum);
+        _newLine();
+      }
       _printLeft(tax);
       _newLine();
       _printLeft(total);

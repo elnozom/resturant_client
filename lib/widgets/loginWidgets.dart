@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:get/state_manager.dart';
 import 'package:numeric_keyboard/numeric_keyboard.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
@@ -15,11 +16,11 @@ class LoginWidgets {
   final FocusNode codeFocus = new FocusNode();
   Rx<String> password = "".obs;
 
-
-  void reset(){
+  void reset() {
     codeController.clear();
     password.value = "";
   }
+
   void attachLetterToEmpCode(val) {
     codeController.text += val.toString();
   }
@@ -70,13 +71,11 @@ class LoginWidgets {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-       
-        ElevatedButton(
-                onPressed: () {
-                  toggleTabs(1);
-                },
-                child: Text('login_by_code', style: TextStyle(fontSize: 32))),
-        
+          ElevatedButton(
+              onPressed: () {
+                toggleTabs(1);
+              },
+              child: Text('login_by_code'.tr, style: TextStyle(fontSize: 32))),
         ],
       ),
     );
@@ -88,14 +87,8 @@ class LoginWidgets {
       color: Colors.white,
       alignment: Alignment.center,
       child: Directionality(
-        textDirection:TextDirection.ltr,
-              child: NumericKeyboard(
-          boxDecoration: BoxDecoration(
-            color: Theme.of(context).primaryColor,
-            borderRadius: Globals().radius,
-            boxShadow: [Globals().shadow],
-          ),
-          size: MediaQuery.of(context).size.width > 960 ? 100.0 : 60.0,
+        textDirection: TextDirection.ltr,
+        child: NumericKeyboard(
           // bgColor: Theme.of(context).primaryColor,
           onKeyboardTap: (val) {
             keyPadActions.pressed(val);
@@ -171,10 +164,13 @@ class LoginWidgets {
       Text(
         'enter_code',
         textAlign: TextAlign.center,
-        style: TextStyle( fontSize: 22),
+        style: TextStyle(fontSize: 22),
       ),
       TextButton(
-        child: Text('new_code' , style: TextStyle(fontSize: 22),),
+        child: Text(
+          'new_code',
+          style: TextStyle(fontSize: 22),
+        ),
         onPressed: () {
           newCode();
         },

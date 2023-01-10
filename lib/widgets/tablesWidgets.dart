@@ -6,11 +6,17 @@ import 'package:client_v3/app/utils/globals.dart';
 import 'package:client_v3/app/data/models/table/table_group_model.dart';
 
 class TablesWidgets {
-  Widget areaTab(TableGroup group, Function click, Rx<int> activeGroup) {
+  Widget areaTab(TableGroup group, Function click, int activeGroupNo) {
+    Rx<int> activeGroup = activeGroupNo.obs;
+    print("activeGroup");
+    print(activeGroup);
+    print(group.groupTableName);
+    // return Text("hiasd");
     return GestureDetector(onTap: () {
-      click(group.groupTableNo);
-    }, child: Obx(() {
-      return Container(
+      activeGroup.value = group.groupTableNo;
+      click(group);
+    }, 
+    child: Container(
         padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
         margin: EdgeInsets.only(bottom: 5),
         alignment: Alignment.center,
@@ -25,12 +31,30 @@ class TablesWidgets {
           group.groupTableName,
           style: TextStyle(fontSize: 16),
         ),
-      );
-    }));
+      ),
+      // child: Obx(() {
+      // return Container(
+      //   padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+      //   margin: EdgeInsets.only(bottom: 5),
+      //   alignment: Alignment.center,
+      //   decoration: BoxDecoration(
+      //     color: activeGroup == group.groupTableNo
+      //         ? Color(0xff1e90ff)
+      //         : Colors.black,
+      //     borderRadius: Globals().radius,
+      //     // boxShadow: [Globals().shadowLight]
+      //   ),
+      //   child: Text(
+      //     group.groupTableName,
+      //     style: TextStyle(fontSize: 16),
+      //   ),
+      // );
+    // })
+    );
   }
 
   SingleChildScrollView tabsGroups(
-      List<TableGroup> groups, Function onTap, activeGroup) {
+      List<TableGroup> groups, Function onTap, int activeGroup) {
     List<Widget> list = [];
     groups.forEach((group) {
       list.add(areaTab(group, onTap, activeGroup));
@@ -112,7 +136,7 @@ class TablesWidgets {
     tables.value.forEach((TableModel table) {
       list.add(GestureDetector(
           onTap: () {
-            chooseTable(table);
+            chooseTable(context , table);
           },
           child: tableWidget(table, context)));
     });
